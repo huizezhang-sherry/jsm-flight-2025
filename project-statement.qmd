@@ -11,3 +11,23 @@ Specifically, we are interested to answer:
 - Do these airports match with athlete zipcode in the Marathon entry list?
 - For athletes from xxx (a specific region), how would they fly to Boston, Chicago, or NY?
 
+## Marathon Data
+
+| Year | Boston Marathon | Chicago Marathon | New York City Marathon |
+|------|-----------------|------------------|------------------------|
+| 2015 | April 20        | October 11        | November 1            |
+| 2016 | April 18        | October 9         | November 6            |
+| 2017 | April 17        | October 8         | November 5            |
+| 2018 | April 16        | October 7         | November 4            |
+| 2019 | April 15        | October 13        | November 3            |
+| 2020 | Sep 5–14 (virtual) | Canceled       | Canceled              |
+| 2021 | October 11      | October 10        | November 7            |
+| 2022 | April 18        | October 9         | November 6            |
+| 2023 | April 17        | October 8         | November 5            |
+| 2024 | April 15        | October 13        | November 3            |
+
+* The Boston Marathon is traditionally held on Patriots' Day, the third Monday in April.
+* The Chicago Marathon typically takes place on the second Sunday of October.
+* The New York City Marathon is usually held on the first Sunday of November.
+* In 2020, the Boston Marathon was held virtually due to the COVID-19 pandemic, and both the Chicago and New York City Marathons were canceled.
+* In 2021, the Boston Marathon was postponed to October due to the pandemic
