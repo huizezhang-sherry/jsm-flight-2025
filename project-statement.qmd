@@ -1,0 +1,13 @@
+---
+title: "jsm-flight-2025"
+---
+
+In this project, we aim to connect the air traffic data (flight routes, ticket price, passenger data, etc) with major Marathon events in the U.S. (Boston, Chicago, New York) to understand the impact of these events on air travel patterns.
+
+Specifically, we are interested to answer:
+
+- What's the trend of flights to major marathon cities across time?
+- Can we identify airports that have significant changes in flight patterns before/ after vs. during the marathon week? 
+- Do these airports match with athlete zipcode in the Marathon entry list?
+- For athletes from xxx (a specific region), how would they fly to Boston, Chicago, or NY?
+
