@@ -1,0 +1,176 @@
+---
+title: "Scraping Marathon Data"
+date: "2025-03-05"
+execute:
+  warning: false
+format: html
+editor: visual
+---
+
+# Scraping Marathon Data
+
+For now, focusing on the last ten years of data (2015-2024).
+
+## Initialize/Load Packages
+
+```{r}
+#| label: init
+
+library(httr2)
+library(jsonlite)
+library(dplyr)
+library(tidyr)
+```
+
+## Boston Marathon
+
+While the official race results are available on [baa.org](https://www.baa.org/races/boston-marathon/results/search-results), location data are not provided.
+Therefore, a third party website ([marathonguide.com](https://www.marathonguide.com/results/browse.cfm?MIDD=25512240415&year=2024)) which does have location data was used.
+Within the US, city/state is provided for each runner; outside the US, only country.
+Marathonguide.com retrieves this data from runzy.com, but each retrieval is only 20 rows at a time.
+I used ChatGPT to iteratively query data - with a 2 second timeout between retrievals, since the server was timing out otherwise.
+
+TODO: 2021
+
+```{r}
+#| label: boston_2024
+
+# Base URL
+base_url <- "https://back.runzy.com/mg/event-results/25512240415/2024"
+
+### after 1200 (60 queries) it times out
+
+# Parameters
+params <- list(
+  sort_field = "over_all_place",
+  sort_direction = "asc",
+  offset = 0
+)
+
+# Initialize empty list to collect data
+all_results <- list()
+
+# Pagination loop — get 20 results at a time until no more results
+repeat {
+  # Make the request
+  response <- request(base_url) %>%
+    req_url_query(!!!params) %>%
+    req_perform() %>%
+    resp_body_json()
+
+  # Extract results
+  results <- response$results
+
+  # If no results, we're done
+  if (length(results) == 0) break
+
+  # Append results to list
+  all_results <- append(all_results, results)
+
+  # Move to next page
+  params$offset <- params$offset + 20
+  
+  # Respect the server - add a short pause (adjust if needed)
+  Sys.sleep(2)
+}
+
+# Combine all pages into a single data frame
+results_df <- bind_rows(all_results)
+
+# Write .csv to raw data folder
+dir <- getwd() # current directory is /scripts
+parent_dir <- dirname(dir) # get project directory
+data_dir <- paste0(parent_dir,'/data-raw/') 
+
+write.csv(results_df, paste0(data_dir,"boston2024.csv"), row.names = F)
+```
+
+```{r}
+#| label: boston_rest
+
+base_url <- "https://back.runzy.com/mg/event-results/25512240415/"
+years <- 2015:2023 %>% as.character()
+urls <- paste0(base_url, years)
+
+for (i in 1:length(urls)){
+  url <- urls[i]
+  year <- years[i]
+  
+  # Parameters
+  params <- list(
+    sort_field = "over_all_place",
+    sort_direction = "asc",
+    offset = 0
+  )
+  
+  # Initialize empty list to collect data
+  all_results <- list()
+  
+  # Pagination loop — get 20 results at a time until no more results
+  repeat {
+    # Make the request
+    response <- request(url) %>%
+      req_url_query(!!!params) %>%
+      req_perform() %>%
+      resp_body_json()
+  
+    # Extract results
+    results <- response$results
+  
+    # If no results, we're done
+    if (length(results) == 0) break
+  
+    # Append results to list
+    all_results <- append(all_results, results)
+  
+    # Move to next page
+    params$offset <- params$offset + 20
+    
+    # Respect the server - add a short pause (adjust if needed)
+    Sys.sleep(1)
+  }
+  
+  # Combine all pages into a single data frame
+  results_df <- bind_rows(all_results)
+  
+  # Write .csv to raw data folder
+  dir <- getwd() # current directory is /scripts
+  parent_dir <- dirname(dir) # get project directory
+  data_dir <- paste0(parent_dir,'/data-raw/') 
+
+  write.csv(results_df, paste0(data_dir,"boston",year,".csv"), row.names = F)
+}
+```
+
+## Chicago Marathon
+
+Data source is here
+
+TODO: 2021
+
+```{r}
+
+```
+
+## Honolulu Marathon
+
+We are considering adding the Honolulu marathon to this list because out of state travelers
+
+```{r}
+
+```
+
+## New York Marathon
+
+For the New York Marathon, runner location data are available on [the official race website](https://results.nyrr.org/event/M2024/finishers).
+However, scraping may be difficult (tbd)
+
+TODO: 2021
+
+```{r}
+
+url <- "https://results.nyrr.org/event/M2024/finishers"
+
+```
+
+## 
