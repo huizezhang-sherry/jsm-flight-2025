@@ -1,7 +1,7 @@
 
 # jsm-flight-2025
 
-*Please check the `issues` tab on GitHub for your TODO list*
+*Please check the `issues` tab on GitHub for your TODO list* 
 
 Speed: A hybrid of a poster and oral presentation, a speed session consists of 20 oral presentations of four minutes each, with five minutes of break after the first set of 10 talks. The short oral presentations are then followed by an e-poster (offered on a 42” LCD display in the landscape position) session later the same day.
 
