@@ -96,49 +96,52 @@ for (i in 1:length(urls)){
   url <- urls[i]
   year <- years[i]
   
-  # Parameters
-  params <- list(
+  if (i > 1){ # just cause loop taking a while
+    # Parameters
+    params <- list(
     sort_field = "over_all_place",
     sort_direction = "asc",
     offset = 0
-  )
-  
-  # Initialize empty list to collect data
-  all_results <- list()
-  
-  # Pagination loop — get 20 results at a time until no more results
-  repeat {
+    )
+    
+    # Initialize empty list to collect data
+    all_results <- list()
+    
+    # Pagination loop — get 20 results at a time until no more results
+    repeat {
     # Make the request
     response <- request(url) %>%
       req_url_query(!!!params) %>%
       req_perform() %>%
       resp_body_json()
-  
+    
     # Extract results
     results <- response$results
-  
+    
     # If no results, we're done
     if (length(results) == 0) break
-  
+    
     # Append results to list
     all_results <- append(all_results, results)
-  
+    
     # Move to next page
     params$offset <- params$offset + 20
     
-    # Respect the server - add a short pause (adjust if needed)
-    Sys.sleep(1)
+      # Respect the server - add a short pause (adjust if needed)
+      Sys.sleep(1)
+    }
+    
+    # Combine all pages into a single data frame
+    results_df <- bind_rows(all_results)
+    
+    # Write .csv to raw data folder
+    dir <- getwd() # current directory is /scripts
+    parent_dir <- dirname(dir) # get project directory
+    data_dir <- paste0(parent_dir,'/data-raw/') 
+    
+    write.csv(results_df, paste0(data_dir,"boston",year,".csv"), 
+              row.names = F)
   }
-  
-  # Combine all pages into a single data frame
-  results_df <- bind_rows(all_results)
-  
-  # Write .csv to raw data folder
-  dir <- getwd() # current directory is /scripts
-  parent_dir <- dirname(dir) # get project directory
-  data_dir <- paste0(parent_dir,'/data-raw/') 
-
-  write.csv(results_df, paste0(data_dir,"boston",year,".csv"), row.names = F)
 }
 ```
 
