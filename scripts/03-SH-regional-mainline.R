@@ -1,8 +1,11 @@
+library(arrow)
 library(tidyverse)
 library(tidygraph)
 library(ggraph)
 library(sf)
 library(broom)
+library(tidymodels)
+flight_df <- read_parquet("Year=2024/data_0.parquet")
 airport_pairs <- read_csv(here::here("data/airport_pairs.csv")) |> filter(year == 2024, quarter == 1)
 ################################################################################################
 ################################################################################################
@@ -82,7 +85,6 @@ res_glm <- logistic_reg() %>%
 aug_glm <- augment(res_glm, new_data = mainlines_vs_regionals_balance)
 aug_glm |> conf_mat(truth = regional, estimate = .pred_class)
 
-library(tidymodels)
 res_rf <- rand_forest(mtry = 10, trees = 2000) %>%
   set_engine("ranger", importance = "impurity") %>%
   set_mode("classification") %>%
