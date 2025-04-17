@@ -111,7 +111,7 @@ plot_fft <- function(hub_list, airline_label) {
     labs(x = "Period (minutes)", y = "Amplitude",
          title = paste("FFT of Delay Time Patterns -", airline_label)) +
     theme_minimal() +
-    + geom_vline(xintercept = 120, linetype = "dashed", color = "red")
+    geom_vline(xintercept = 120, linetype = "dashed", color = "red")
 }
 
 plot_fft(dl_hubs, "DL")
