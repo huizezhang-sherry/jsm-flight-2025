@@ -1,14 +1,14 @@
 ---
 title: "Exploratory data analysis on the marathon data"
 date: "2025-03-06"
-execute:
-  warning: false
+eval: false
+#execute:
+#  warning: false
 format: html
 ---
 
-
 ```{r setup, echo = FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(warning = FALSE, message = FALSE)
 library(tidyverse)
 library(sf)
 ```
@@ -73,18 +73,16 @@ About 500-1000 participants from ON and QC, Canada, each year, need to check if 
 boston |> filter(state %in% ca_state) |> count(year, state) |> filter(n > 300)
 ```
 
-
-
 # Among US states
 
-The number of participants from each states doesn't seem to be changing much over the years. Here is a summary of the states: 
+The number of participants from each states doesn't seem to be changing much over the years. Here is a summary of the states:
 
-| Category | States (# of participants in 2024)| 
-| ----------------------- | ------| 
+| Category | States (# of participants in 2024) |
+|-------------------------------------------------------|-----------------|
 | Staes that are too close to Boston and likely to have a humoungus confounding from other means of transportation and international flight | MA (3907) <br> NY (1321) <br> NJ (508) |
 | States are likely to use flight as the primary commute - but we need to see whether the participants would make a difference on the flight | CA (1640) <br> TX (844) <br> FL (559) <br> CO (496) <br> WA (415) <br> UT (326) |
-| Other state that are likley to commute by flight, but I suspect the count would be too low to make an impact|  OR(217) <br> AZ (186) |
-| States I'm not sure | IL (598) <br> PA (573) <br> OH (516)|
+| Other state that are likley to commute by flight, but I suspect the count would be too low to make an impact | OR(217) <br> AZ (186) |
+| States I'm not sure | IL (598) <br> PA (573) <br> OH (516) |
 
 ```{r eval = FALSE}
 dom_boston <- boston |> filter(country == "domestic")
@@ -106,7 +104,6 @@ ggplot(usa_map) +
   ggthemes::theme_map()
 ```
 
-
 This doesn't look good, for states that are far away from Boston, only about/ less than 100 people from each city/state participate in the marathon - we might not be able to see an effect on changes of flight behavior:
 
 ```{r}
@@ -118,4 +115,3 @@ map_dfr(c("CA", "TX", "FL", "CO", "WA", "UT"),
     group_by(state) |> head(2))
 
 ```
-
