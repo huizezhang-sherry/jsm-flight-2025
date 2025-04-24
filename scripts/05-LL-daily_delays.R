@@ -15,7 +15,7 @@ df <- subset(df,
 df <- subset(df, Cancelled != 1)
 
 hubs <- data.frame(Reporting_Airline = c("AA", "AA", "DL", "DL"), 
-                   Origin = c("DFW", "ORD", "ATL", "MSP"), 
+                   Origin = c("DFW", "CLT", "ATL", "MSP"), 
                    hub = c(T, T, T, T))
 
 ##########################################################
@@ -37,7 +37,7 @@ dfwide$col <- ifelse(dfwide$dif < 0, "negative", "positive")
 ggplot(data = dfwide, aes(x = day, y = dif, fill = col)) + 
   geom_col() + 
   labs(x = "", y = "Difference between average departure delay from non-hub and hub (as origin)", 
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   theme_hc() + 
   guides(fill = "none") + 
   scale_y_continuous(breaks = seq(-80, 50, 10)) +
@@ -58,7 +58,7 @@ dfwide$col <- ifelse(dfwide$dif < 0, "negative", "positive")
 ggplot(data = dfwide, aes(x = day, y = dif, fill = col)) + 
   geom_col() + 
   labs(x = "", y = "Difference between average arrival delay from non-hub and hub (as origin)", 
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   scale_y_continuous(breaks = seq(-80, 50, 10)) + 
   theme_hc() + 
   guides(fill = "none") + 
@@ -86,7 +86,7 @@ ggplot(data = dfwide, aes(x = day, y = dif, fill = col)) +
   geom_col() + 
   labs(x = "", 
        y = "Difference between average delay (among delays > 0) from non-hub and hub (as origin)",
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   theme_hc() + 
   scale_y_continuous(breaks = seq(-1100, 1000, 100)) +
   guides(fill = "none") + 
@@ -96,7 +96,7 @@ ggplot(data = dfwide, aes(x = day, y = dif, fill = col)) +
   geom_col() + 
   labs(x = "", 
        y = "Difference between average delay (among delays > 0) from non-hub and hub (as origin)",
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   theme_few() + 
   guides(fill = "none") + 
   facet_grid(cause~airline)
@@ -107,7 +107,7 @@ ggplot(data = dfwideCarrier, aes(x = day, y = dif, fill = col)) +
   labs(x = "", 
        y = "Difference between average delay (among delays > 0) from non-hub and hub (as origin)", 
        title = "Carrier Delay",
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   theme_hc() + 
   scale_y_continuous(breaks = seq(-100, 100, 10)) +
   guides(fill = "none") + 
@@ -119,7 +119,7 @@ ggplot(data = dfwideLate, aes(x = day, y = dif, fill = col)) +
   labs(x = "", 
        y = "Difference between average delay (among delays > 0) from non-hub and hub (as origin)", 
        title = "Late Aircraft Delay",
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   theme_hc() + 
   scale_y_continuous(breaks = seq(-100, 100, 10)) +
   guides(fill = "none") + 
@@ -131,7 +131,7 @@ ggplot(data = dfwideNAS, aes(x = day, y = dif, fill = col)) +
   labs(x = "", 
        y = "Difference between average delay (among delays > 0) from non-hub and hub (as origin)", 
        title = "NAS Delay",
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   theme_hc() + 
   scale_y_continuous(breaks = seq(-100, 100, 10)) +
   guides(fill = "none") + 
@@ -143,7 +143,7 @@ ggplot(data = dfwideSecurity, aes(x = day, y = dif, fill = col)) +
   labs(x = "", 
        y = "Difference between average delay (among delays > 0) from non-hub and hub (as origin)", 
        title = "Security Delay",
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   theme_hc() + 
   scale_y_continuous(breaks = seq(-100, 100, 10)) +
   guides(fill = "none") + 
@@ -155,7 +155,7 @@ ggplot(data = dfwideWeather, aes(x = day, y = dif, fill = col)) +
   labs(x = "", 
        y = "Difference between average delay (among delays > 0) from non-hub and hub (as origin)", 
        title = "Weather Delay",
-       caption = "AA Hubs: DFW & ORD, DL Hubs: ATL & MSP") + 
+       caption = "AA Hubs: DFW & CLT, DL Hubs: ATL & MSP") + 
   theme_hc() + 
   guides(fill = "none") + 
   scale_y_continuous(breaks = seq(-1100, 1000, 100)) +
