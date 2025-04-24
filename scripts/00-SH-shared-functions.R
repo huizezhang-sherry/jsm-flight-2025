@@ -28,23 +28,27 @@ plot_dep_arv_pattern <- function(data){
     geom_col() +
     facet_wrap(vars(airline_airport), scales = "free_y", ncol = 2) +
     scale_x_datetime(date_labels =  "%H:%M", date_breaks = "2 hour") +
-    theme_minimal()
+    theme_minimal() +
+    xlab("Time of the date") +
+    ylab("Count")
 }
 
 ###############################################################################
 ###############################################################################
 # Usage
-library(arrow)
-flight_df_2024 <- read_parquet("Year=2024/data_0.parquet")
-
-# `summarize_count()` gives the count summary
-# check the `block_size` and `airports` argument
-msp_df <- flight_df_2024 |>
-  filter(Month == 3, between(DayofMonth, 23, 24), Reporting_Airline == "DL",
-         (Origin == "MSP" | Dest == "MSP")) |>
-  summarize_count(airports = "MSP")
-
-# plot with `plot_dep_arv_pattern()`
-msp_df |> plot_dep_arv_pattern()
-# you can add more ggplot syntax to customize the title, etc:
-msp_df |> plot_dep_arv_pattern() + ggtitle("MSP - DL on 2024 Mar 23-24")
+# library(arrow)
+# library(tidyverse)
+# flight_df_2024 <- read_parquet("Year=2024/data_0.parquet")
+#
+# # `summarize_count()` gives the count summary
+# # check the `block_size` and `airports` argument
+# msp_df <- flight_df_2024 |>
+#   filter(Month == 3, between(DayofMonth, 23, 24), Reporting_Airline == "DL",
+#          (Origin == "MSP" | Dest == "MSP")) |>
+#   summarize_count(airports = "MSP")
+#
+# # plot with `plot_dep_arv_pattern()`
+# msp_df |> plot_dep_arv_pattern()
+# # you can add more ggplot syntax to customize the title, etc:
+# msp_df |> plot_dep_arv_pattern() + ggtitle("MSP - DL on 2024 Mar 23-24")
+#

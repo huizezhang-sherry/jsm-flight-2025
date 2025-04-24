@@ -2,7 +2,7 @@ library(arrow)
 library(tidyverse)
 library(patchwork)
 library(sf)
-
+source(here::here("figures/00-SH-shared-functions.R"))
 flight_df_2024 <- read_parquet("Year=2024/data_0.parquet")
 flight_df <- read_parquet("Year=2023/data_0.parquet")
 flight_df2 <- read_parquet("Year=2022/data_0.parquet")
