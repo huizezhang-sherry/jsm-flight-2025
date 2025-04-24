@@ -35,6 +35,12 @@ Where there any structural changes in flight routes?
 
 Data: - [Link to dataset](https://www.transtats.bts.gov/DL_SelectFields.aspx?gnoyr_VQ=FGJ&QO_fu146_anzr=b0-gvzr) - [Link to data dictionary](https://www.transtats.bts.gov/Fields.asp?gnoyr_VQ=FGJ) - [A potential passenger data](https://www.transtats.bts.gov/DatabaseInfo.asp?QO_VQ=EED&QO_fu146_anzr=Nv4%20Pn44vr45&QO_anzr=Nv4%20Pn44vr4%20f6n6v56vp5%20(S14z%20HE%20g4nssvp)-%20%20h.f.%20Pn44vr45&Yv0x=D)
 
+## Proposed abstract
+
+**title**: The Effect of Delays on Airport Flight Patterns
+
+**abstract**: Flight delays can be caused by events such as hazardous weather, crew availability and security issues. When purchasing flight tickets, many passengers hope to minimize delays to avoid spending too much time at the airport or missing a connecting flight. Flight delays often have a cascading effect, where one flight's delay may influence the next. Additionally, multiple flights may experience delays at the same time, when events such as bad weather occur. We hypothesize that airline "hubs" - defined here as an airport/airline pair containing a large volume of passenger traffic for that airline - may be more equipped to respond to delay perturbations than non-hubs. Herein, a Fast Fourier Transform (FFT) is applied to scheduled arrival/departure times to estimate airport periodicity. The relationship between hub status, periodicity, and delays is explored. We also compare differences between traditional "hub and spoke" airlines such as Delta to "point to point" structured airlines such as Southwest.
+
 ## Submitted abstract
 
 ~~Climate change and extreme weather events continue to plague the United States economy, including flight arrival times. In this poster, we plan to examine how extreme weather events affect airplane traffic. Specifically, we associate extreme weather events with predicted flight delays and build a model to predict the average expected delay given a specified weather forecast and season.~~
