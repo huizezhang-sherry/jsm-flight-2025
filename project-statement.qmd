@@ -2,32 +2,28 @@
 title: "jsm-flight-2025"
 ---
 
-In this project, we aim to connect the air traffic data (flight routes, ticket price, passenger data, etc) with major Marathon events in the U.S. (Boston, Chicago, New York) to understand the impact of these events on air travel patterns.
+We may need to start from the hub-and-spoke structure since it is more familiear concept for general audience, and then move to the concept of banked hubs (UA, AA) and rolling hubs (DL, WN)
 
-Specifically, we are interested to answer:
+bank: defined as a wave of flight arrivals at the hub from numerous spoke airport during a limited timeframe
 
-- What's the trend of flights to major marathon cities across time?
-- Can we identify airports that have significant changes in flight patterns before/ after vs. during the marathon week? 
-- Do these airports match with athlete zipcode in the Marathon entry list?
-- For athletes from xxx (a specific region), how would they fly to Boston, Chicago, or NY?
+## Rolling hub vs. banked hub
 
-## Marathon Data
+* American decided unbanking was a good plan more than a decade ago since it is cost-saving - SZ: reflected on the pattern we see in 2003 and could due to the reduction in air traffic post 911 (maybe also soaring fuel cost and economy recession - dotcom bubble as suggested by SMC) , hence the change. 
 
-| Year | Boston Marathon | Chicago Marathon | New York City Marathon |
-|------|-----------------|------------------|------------------------|
-| 2015 | April 20        | October 11        | November 1            |
-| 2016 | April 18        | October 9         | November 6            |
-| 2017 | April 17        | October 8         | November 5            |
-| 2018 | April 16        | October 7         | November 4            |
-| 2019 | April 15        | October 13        | November 3            |
-| 2020 | Sep 5–14 (virtual) | Canceled       | Canceled              |
-| 2021 | October 11      | October 10        | November 7            |
-| 2022 | April 18        | October 9         | November 6            |
-| 2023 | April 17        | October 8         | November 5            |
-| 2024 | April 15        | October 13        | November 3            |
+* The US Airways management team had learned long ago that the revenue benefits of a true banked hub outweighed the cost savings of a rolling hub, and they brought that strategy to the new American - SZ: after US Airway merging with American in 2013
 
-* The Boston Marathon is traditionally held on Patriots' Day, the third Monday in April.
-* The Chicago Marathon typically takes place on the second Sunday of October.
-* The New York City Marathon is usually held on the first Sunday of November.
-* In 2020, the Boston Marathon was held virtually due to the COVID-19 pandemic, and both the Chicago and New York City Marathons were canceled.
-* In 2021, the Boston Marathon was postponed to October due to the pandemic
+* CLT was a US Airway hub but not an American one. After the merge, CLT becomes an American hub and hence the banked schedule pattern after 2015. 
+
+* "Results show that depeaking tends to improve operations, but may negatively impact revenue per available seat mile (RASM)."
+
+* A few other examples: Airlines de-banked operations at its Chicago hub in April 2002, its Dallas/Fort Worth hub in November, 2002, and its Miami
+hub in May 2004 ([2, 3]). Continental Airlines de-banked its Newark hub ([3]); United Airlines de-banked its Chicago hub in 2004, its Los Angeles hub in 2005 ([4]); and Delta Airlines de-banked its Atlanta hub in January, 2005. Also closure of American Airlines’hub at Raleigh/Durham Airport, North Carolina, in 1995. 
+
+* This wave pattern only show in well-established hub airports with extremely large passenger volumes
+
+## Sources: 
+
+- https://crankyflier.com/2015/04/27/how-american-rebanked-its-chicago-and-dallas-operations-and-why-its-a-good-thing/
+- other banking examples: https://dspace.mit.edu/bitstream/handle/1721.1/108098/Jiang%20H%20%20and%20Barnhart%20C%20%20%20Robust%20Airline%20Schedule%20Design%20In%20A%20Dynamic%20Scheduling%20Environment.pdf?sequence=1&isAllowed=y
+- definition of "bank": https://core.ac.uk/download/pdf/42754885.pdf
+- calculation on revenue per available seat mile (RASM) : https://www.sciencedirect.com/science/article/pii/S0969699713000902
