@@ -5,13 +5,13 @@ y <- 2015
 
 # import passenger count data
 pv <- read.csv(paste0(getwd(), "/unzipped/T_T100D_SEGMENT_ALL_CARRIER_", y, ".csv"))
-pv <- subset(pv, subset = UNIQUE_CARRIER %in% c("AA", "DL", "WN", "UA"), 
+pv <- subset(pv, subset = UNIQUE_CARRIER %in% c("AA", "DL", "WN", "UA"),
              select = c("UNIQUE_CARRIER", "ORIGIN", "QUARTER", "PASSENGERS"))
 colnames(pv) <- c("airline", "origin", "quarter", "passengers")
 # get yearly passenger counts for airline/airport pairs
-pvYear <- pv %>% 
-  group_by(airline, origin) %>% 
-  summarise(count = sum(passengers)) %>% 
+pvYear <- pv %>%
+  group_by(airline, origin) %>%
+  summarise(count = sum(passengers)) %>%
   as.data.frame()
 
 # import flight data
@@ -30,10 +30,13 @@ dfQ <- df %>%
   mutate(quantile = ntile(count, 4)) %>%
   ungroup()
 
-# sort by airline and yearly passenger count (so it is in descending order) 
+# sort by airline and yearly passenger count (so it is in descending order)
 # and then take the top five airports from each airline quartile
-df80 <- dfQ %>% 
-  group_by(airline, quantile) %>% 
-  arrange(desc(count)) %>% 
+df80 <- dfQ %>%
+  group_by(airline, quantile) %>%
+  arrange(desc(count)) %>%
   slice_head(n = 5)
+
+colnames(df80) <- c("airline", "origin", "passenger_count", "quartile")
+write.csv(df80, "pairs80.csv", row.names = FALSE)
 
