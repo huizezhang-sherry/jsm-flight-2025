@@ -16,7 +16,7 @@ print(aa_airports)
 ```
 
 
-```{r data 2023}
+```{r data 2015}
 library(arrow)
 library(tidyverse)
 library(dplyr)
@@ -125,9 +125,9 @@ ggplot() +
   theme_minimal()
 
 ```
-## FFT for checking peridicity
+## FFT for checking periodicity
 
-```{r FFT 2023, echo = FALSE}
+```{r FFT 2015, echo = FALSE}
 
 fft_all <- splines_df |>
   group_by(airport, type) |>
