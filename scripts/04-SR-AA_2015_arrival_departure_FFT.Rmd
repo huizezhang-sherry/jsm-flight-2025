@@ -222,3 +222,52 @@ p_dep <- ggplot(top2_dep, aes(x = top1_period_mins, y = top2_period_mins, label 
   theme_minimal()
 ggsave("figures/top2_fft_departures.png", p_dep, width = 8, height = 6, dpi = 300, bg = "white")
 ```
+## Clustering 
+```{r clustering}
+library(cluster)
+library(dplyr)
+library(ggplot2)
+
+
+
+# Select and log-transform periods for clustering
+arr_features <- top2_arr |> 
+  mutate(log_p1 = log10(top1_period_mins),
+         log_p2 = log10(top2_period_mins)) |> 
+  select(airport, log_p1, log_p2)
+
+dep_features <- top2_dep |> 
+  mutate(log_p1 = log10(top1_period_mins),
+         log_p2 = log10(top2_period_mins)) |> 
+  select(airport, log_p1, log_p2)
+
+
+
+# Arrival clustering
+set.seed(123)
+k_arr <- kmeans(arr_features[, -1], centers = 4)
+arr_features$cluster <- factor(k_arr$cluster)
+
+# Departure clustering
+set.seed(123)
+k_dep <- kmeans(dep_features[, -1], centers = 4)
+dep_features$cluster <- factor(k_dep$cluster)
+
+arr_cluster <- ggplot(arr_features, aes(x = log_p1, y = log_p2, label = airport, color = cluster)) +
+  geom_point(size = 3) +
+  geom_text(vjust = -0.6, size = 3.5) +
+  labs(title = "Clustering of Airports by Top FFT Periods (Arrivals)",
+       x = "log10(Top 1 Period)", y = "log10(Top 2 Period)") +
+  theme_minimal()
+
+ dep_cluster <-ggplot(dep_features, aes(x = log_p1, y = log_p2, label = airport, color = cluster)) +
+  geom_point(size = 3) +
+  geom_text(vjust = -0.6, size = 3.5) +
+  labs(title = "Clustering of Airports by Top FFT Periods (Departures)",
+       x = "log10(Top 1 Period)", y = "log10(Top 2 Period)") +
+  theme_minimal()
+
+arr_cluster; dep_cluster
+
+
+```
