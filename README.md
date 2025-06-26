@@ -53,3 +53,7 @@ Data: - [Link to dataset](https://www.transtats.bts.gov/DL_SelectFields.aspx?gno
 **abstract**: Dedicated sports fans may choose to fly to support their favorite team in person.
 In this exploratory analysis, we investigate the relationship between seasonal rankings of sports teams and airplane traffic to home and away cities hosting collegiate and professional football games.
 We uncover unique insights regarding the seasonal and behavioral traffic patterns of sports fans, with the Super Bowl as a case study.
+
+## Sarah's jsm folder
+
+https://utexas.box.com/s/trt8hfn04p53wlnz2vo307rufnok1ji9
