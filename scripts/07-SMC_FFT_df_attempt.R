@@ -199,6 +199,9 @@ p <- bind_rows(l_0) %>% as_tibble() %>%
   mutate(airline_airport = paste0(airline, "-", origin)) %>%
   ggplot(aes(x = arr, y = dep, color = as.factor(quartile))) +
   #geom_point() +
-  geom_text(aes(label = airline_airport), nudge_y = 0.1)
+  geom_abline(slope = 1, intercept = 0) +
+  geom_text(aes(label = airline_airport), nudge_y = 0.1) +
+  theme(aspect.ratio = 1) +
+  facet_wrap(vars(airline))
 
 ggsave(paste0('./figures/07-SMC_fft_entropy_all.png'))
