@@ -124,17 +124,19 @@ splines_df_list <- lapply(binned_data_list, function(df){
 ### FFT ###
 ###########
 
+sample_rate <- 0.5
+
 fft_all_list <- lapply(splines_df_list, function(df){
   airline <- unique(df$airline)
   df <- df |>
     group_by(airport, type) |>
     group_modify(~{
       signal <- .x$fitted
-      n <- length(signal)
+      n <- length(signal) # number of rows
 
-      fft_result <- fft(signal)
-      modulus <- Mod(fft_result)[1:(n/2)]
-      freqs <- (0:(n/2 - 1)) / n
+      fft_result <- fft(signal) # acutally doing fft
+      modulus <- Mod(fft_result)[1:(n*sample_rate)] # amplitudes
+      freqs <- (1:(n*sample_rate)) / n #
       periods_in_minutes <- 1 / freqs
 
       tibble(
@@ -174,7 +176,7 @@ l_0 <- lapply(fft_all_list, function(df){
 })
 
 # Write to file
-if (FALSE){
+if (TRUE){
   write.csv(l_0 %>% bind_rows(), './data/fft_entropy_all_80.csv')
 }
 
@@ -187,7 +189,7 @@ p_entropy <- lapply(l_0, function(df){
     geom_point() +
     geom_text(aes(label = origin), nudge_y = 0.1) +
     labs(title = Airline)
-  if (FALSE){
+  if (TRUE){
     ggsave(paste0('./figures/07-SMC_fft_entropy_',Airline,'.png'))
   }
   p
