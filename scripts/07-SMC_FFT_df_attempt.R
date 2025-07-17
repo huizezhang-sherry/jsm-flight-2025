@@ -156,14 +156,15 @@ plot_list_3 <- lapply(fft_all_list, function(df){
 })
 
 # Saptarshi's data
-dat <- read.csv('./data/top2_fft_2017.csv')
+# dat <- read.csv('./data/top2_fft_2017.csv')
 
 # Get entropy!
 l_0 <- lapply(fft_all_list, function(df){
   Airline <- unique(df$airline)
   df_0 <- df %>%
     group_by(airport, type) %>%
-    summarise(entropy = sum(-amplitude*log(amplitude), na.rm = T)) %>%
+    summarise(prob = amplitude^2 / sum(amplitude^2)) %>%
+    summarise(entropy = sum(-prob*log(prob), na.rm = T)) %>%
     pivot_wider(names_from = type, values_from = entropy) %>%
     rename(origin = airport)
 
@@ -181,7 +182,7 @@ if (FALSE){
 p_entropy <- lapply(l_0, function(df){
   Airline <- unique(df$airline)
   p <- df %>%
-    mutate(arr = log(abs(arr)), dep = log(abs(dep)))%>%
+    #mutate(arr = log(abs(arr)), dep = log(abs(dep)))%>%
     ggplot(aes(x = arr, y = dep, color = factor(quartile))) +
     geom_point() +
     geom_text(aes(label = origin), nudge_y = 0.1) +
@@ -189,4 +190,13 @@ p_entropy <- lapply(l_0, function(df){
   if (FALSE){
     ggsave(paste0('./figures/07-SMC_fft_entropy_',Airline,'.png'))
   }
+  p
 })
+
+p <- bind_rows(l_0) %>% as_tibble() %>%
+  mutate(airline_airport = paste0(airline, "-", origin)) %>%
+  ggplot(aes(x = arr, y = dep, color = as.factor(quartile))) +
+  #geom_point() +
+  geom_text(aes(label = airline_airport), nudge_y = 0.1)
+
+ggsave(paste0('./figures/07-SMC_fft_entropy_all.png'))
