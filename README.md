@@ -69,6 +69,11 @@ We uncover unique insights regarding the seasonal and behavioral traffic pattern
 ·         Speed poster sessions will use the e-poster format.
 ·         JSM will provide a small laptop, 42” TV screen, and all necessary hookups. There will also be a table available for handouts and business cards.
 
+## References
+
+·         FFT to entropy: https://doi.org/10.1016/j.physa.2018.06.081
+
+
 ## Sarah's JSM Box folder
 
 https://utexas.box.com/s/trt8hfn04p53wlnz2vo307rufnok1ji9
