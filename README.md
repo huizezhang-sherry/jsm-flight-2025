@@ -54,6 +54,21 @@ Data: - [Link to dataset](https://www.transtats.bts.gov/DL_SelectFields.aspx?gno
 In this exploratory analysis, we investigate the relationship between seasonal rankings of sports teams and airplane traffic to home and away cities hosting collegiate and professional football games.
 We uncover unique insights regarding the seasonal and behavioral traffic patterns of sports fans, with the Super Bowl as a case study.
 
-## Sarah's jsm folder
+## JSM Presentation Information
+
+### ORAL PRESENTATION
+
+·         Your oral presentation is in the session titled  SPEED 1: Data Challenge and Prediction Modelling, Part 1 on 8/3/2025, beginning at 2:00:00 PM.
+·         The session will consist of up to 20 talks of four minutes each. Please know you should be prepared with five or fewer slides for this portion of the presentation.
+·         To ease the transition between talks, speed session presenters are required to upload the slides for the oral portion of their presentation in advance online or onsite in the Speaker Ready Room or at a kiosk. More information about the speaker management system will be sent to you closer to the conference.
+ 
+
+### E-POSTER PRESENTATION
+
+·         Your e-poster presentation is scheduled for Sunday, August 3, from 4:00 p.m. - 4:45 p.m.
+·         Speed poster sessions will use the e-poster format.
+·         JSM will provide a small laptop, 42” TV screen, and all necessary hookups. There will also be a table available for handouts and business cards.
+
+## Sarah's JSM Box folder
 
 https://utexas.box.com/s/trt8hfn04p53wlnz2vo307rufnok1ji9
