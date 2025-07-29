@@ -6,7 +6,8 @@ library(purrr)
 # Read in data
 entropy_df <- read.csv("data/09-SMC-entropy.csv") %>%
   rename(arr_ent = arr,
-         dep_ent = dep)
+         dep_ent = dep) %>%
+  mutate(hub_type = factor(hub_type, levels = c('Nonhub', 'Small', 'Medium', 'Large')))
 flight_df <- read_parquet("Year=2017/data_0.parquet")
 
 # Filter data

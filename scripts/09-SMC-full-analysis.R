@@ -2,6 +2,7 @@ library(tidyverse)
 library(patchwork)
 library(arrow)
 library(purrr)
+library(ggrepel)
 
 # Copied from Sherry's script 11, to debug entropy
 
@@ -16,9 +17,7 @@ airport_vec <- hub_df %>% pull(dest)
 airline_vec <- c("DL", "AA", "WN", "UA")
 
 # Mutate dataframe correctly
-flight_hubs_spokes <- flight_df %>%
-  filter(Reporting_Airline %in% airline_vec) %>% # get only big 4 airlines
-  filter(Origin %in% airport_vec | Dest %in% airport_vec) %>% # get only airports with hub status
+binned_data <- flight_df %>%
   drop_na(ArrTime, DepTime) %>% # clean up
   mutate(ArrTime = as.numeric(substr(ArrTime, 1, 2)) + as.numeric(substr(ArrTime, 3, 4))/60, # get numeric time
          DepTime = as.numeric(substr(DepTime, 1, 2)) + as.numeric(substr(DepTime, 3, 4))/60) %>% # ""
@@ -31,30 +30,11 @@ flight_hubs_spokes <- flight_df %>%
   mutate(binTime = floor(time / 0.25) * 0.25) %>% # bin time
   group_by(airline, airport, type, binTime) %>% # group it
   summarise(n = n(), .groups = "drop") %>% # summarise
-  rename(time = binTime) # rename this for downstream cohesion
+  rename(time = binTime) %>% # rename this for downstream cohesion
+  filter(airline %in% airline_vec) %>% # get only big 4 airlines
+  filter(airport %in% airport_vec) # get only airports with hub status
 
-# OPTION 1: FIT A SMOOTH SPLINE
-# Fit a smooth spline for each airport and type and standardize amp
-splines_df_std <- binned_data %>%
-  group_by(airline, airport, type) %>%
-  group_modify(~{
-    if (n_distinct(.x$time) >= 48) { # if there are at least 48 obs
-      fit <- smooth.spline(.x$time, .x$n, spar = 0.5)
-      tibble(
-        time = fit$x,
-        fitted = fit$y,
-        airport = unique(.x$airport),
-        type = unique(.x$type),
-        airline = unique(.x$airline)
-      )
-    } else {
-      tibble()  # return empty tibble for groups that don't meet requirement
-    }
-  }) %>%
-  mutate(fitted = fitted / max(fitted, na.rm = TRUE))
-
-# OPTION 2: JUST GOING WITH THE DATA
-# What if I didn't fit a spline?
+# Standardizing data
 nonspline_df_std <- binned_data %>%
   rename(fitted = n) %>%
   mutate(fitted = fitted / max(fitted, na.rm = TRUE)) %>%
@@ -99,28 +79,81 @@ entropy_df <- fft_all %>%
   ungroup() %>%
   mutate(hub_type = factor(hub_type, levels = c('Nonhub', 'Small', 'Medium', 'Large')))
 
-# Visualize entropy by airline and hub
-p <- entropy_df %>% ggplot() +
-  geom_violin(aes(x = hub_type, y = dep)) +
-  facet_wrap(~airline)
-
-q <- entropy_df %>% ggplot() +
-  geom_violin(aes(x = hub_type, y = arr)) +
-  facet_wrap(~airline)
-
 # Some model fits and contrasts
 lm.1 <- aov(arr ~ hub_type - 1, data = entropy_df)
 lm.2 <- aov(dep ~ hub_type - 1, data = entropy_df)
 
+# Factor mapping
+factor_map <- c('Nonhub' = '1', 'Small' = '2', 'Medium' = '3', 'Large' = '4')
+
+# Manual
+n_y <- 4
+s_y <- 4.2
+m_y <- 4.1
+l_y <- 4.1
+lab_start <- c(n_y, s_y, m_y, l_y)
+lab_heights <- max(lab_start) + c(0.2, 0.4, 0.6, 0.8) # individs, then 1-3, 2-4, 1-4
+
+names(lab_start) <- names(factor_map)
+
+# Make horizontal x dataframe
+positions_x <- data.frame(x = c(1.025, 2.025, 3.025, 1, 2, 0.975),
+                          xend = c(1.975, 2.975, 3.975, 3, 4, 4.025),
+                          comp_spans = c(1, 1, 1, 2, 2, 3),
+                          y = c(rep(lab_heights[1],3), lab_heights[2:4])) %>%
+  mutate(x_to_merge = round(x),
+         x_to_merge_end = round(xend))
+
+# Make vertical y dataframe
+positions_y <- positions_x %>%
+  select(-x_to_merge, -x_to_merge_end) %>%
+  pivot_longer(cols = c(x, xend), names_to = "position_type", values_to = "x") %>%
+  mutate(yend = lab_start[round(positions_y$x)])
+
 # Do pairwise compairsons
-pairwise_1 <- TukeyHSD(lm.1, "hub_type")
-pairwise_2 <- TukeyHSD(lm.2, "hub_type")
+pairwise_2 <- TukeyHSD(lm.2, "hub_type")$hub_type %>%
+  as.data.frame() %>%
+  rownames_to_column('contrast') %>%
+  separate(contrast, into = c("group1", "group2"), sep = "-") %>%
+  mutate(group1 = as.numeric(factor_map[group1]),
+         group2 = as.numeric(factor_map[group2]),
+         p.value = case_when(`p adj` < 0.001 ~ "***",
+                             `p adj` < 0.01 ~ "**",
+                             `p adj` < 0.05 ~ "*",
+                             `p adj` < 0.1 ~ ".",
+                             TRUE ~ "n.s."),
+         adjust = case_when(`p adj` < 0.05 ~ 0,
+                            TRUE ~ 0.05)) %>%
+  full_join(positions_x, by = c('group1' = 'x_to_merge_end', 'group2' = 'x_to_merge'))
 
-# Output results
-print(pairwise_1)
-print(pairwise_2)
+# Making this for plotting
+factor_conversion <- c('1' = 'Nonhub', '2' = 'Small', '3' = 'Medium', '4' = 'Large')
 
-getwd()
+# Plotting
+p <- ggplot(entropy_df, aes(x = hub_type, y = dep)) +
+  geom_violin(alpha = 0) +
+  geom_segment( # this plots the bars which span the x direction
+    data = positions_x,
+    aes(x = x, xend = xend, y = y, yend = y),
+    inherit.aes = FALSE) +
+  geom_segment( # this plots the bars which span the y direction
+    data = positions_y,
+    aes(x = x, xend = x, y = y, yend = yend),
+    inherit.aes = FALSE) +
+  geom_text( # adds text labels
+    data = pairwise_2,
+    aes(x = (x + xend)/2 + c(0, -0.1, 0, 0, 0, 0), y = y + adjust + 0.05, label = p.value)
+  ) +
+  geom_violin(data = entropy_df, aes(fill = hub_type), show.legend = FALSE) +
+  labs(
+    y = "Departure entropy",
+    x = "Hub type"
+  ) +
+  scale_fill_manual(values = c('Nonhub' = '#005f86',
+                                'Small' = '#00a9b7',
+                                'Medium' = '#f8971f',
+                                'Large' = '#bf5700')) +
+  theme_minimal()
 
 # Write file
 write.csv(entropy_df, "data/09-SMC-entropy.csv", row.names = F)
