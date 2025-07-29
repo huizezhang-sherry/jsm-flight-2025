@@ -123,4 +123,4 @@ print(pairwise_2)
 getwd()
 
 # Write file
-write.csv(entropy_df, "data/09-SMC-entropy.csv")
+write.csv(entropy_df, "data/09-SMC-entropy.csv", row.names = F)
