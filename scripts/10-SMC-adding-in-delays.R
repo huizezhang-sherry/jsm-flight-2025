@@ -4,7 +4,7 @@ library(arrow)
 library(purrr)
 
 # Read in data
-entropy_df <- read.csv("data/09-SMC-entropy.csv") %>%
+entropy_df <- read.csv("data/11-SH-full-analysis-entropy-df.csv") %>%
   rename(arr_ent = arr,
          dep_ent = dep) %>%
   mutate(hub_type = factor(hub_type, levels = c('Nonhub', 'Small', 'Medium', 'Large')))
@@ -32,11 +32,20 @@ flight_hubs_spokes <- flight_df %>%
 # Merge df
 df_delay <- full_join(entropy_df, flight_hubs_spokes, by = c('airline', 'airport')) %>% drop_na()
 
+# Write csv
+#write.csv(df_delay, 'data/10-SMC-df-delay.csv', row.names = F)
+
 # Check association
 lm_1 <- lm(dep_del ~ airline + hub_type + dep_ent, data = df_delay)
 lm_2 <- lm(arr_del ~ airline + hub_type + arr_ent, data = df_delay)
 
 # Plot it
-p <- df_delay %>% ggplot(aes(x = dep_del, y = dep_ent, colour = hub_type, shape = airline)) +
+p <- df_delay %>% ggplot(aes(x = dep_del, y = dep_ent, color = hub_type, shape = airline)) +
   geom_point() +
-  labs(x = 'Percent of flights delayed 15 minutes or more from an airport', y = 'Airport departure entropy')
+  labs(x = 'Percent of flights delayed 15 minutes or more from an airport',
+       y = 'Airport departure entropy') +
+  scale_color_manual(values = c('Nonhub' = '#005f86',
+                               'Small' = '#00a9b7',
+                               'Medium' = '#f8971f',
+                               'Large' = '#bf5700')) +
+  theme_minimal()

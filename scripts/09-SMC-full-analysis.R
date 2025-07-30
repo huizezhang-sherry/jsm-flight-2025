@@ -3,6 +3,7 @@ library(patchwork)
 library(arrow)
 library(purrr)
 library(ggrepel)
+library(ggplot2)
 
 # Copied from Sherry's script 11, to debug entropy
 
@@ -107,7 +108,9 @@ positions_x <- data.frame(x = c(1.025, 2.025, 3.025, 1, 2, 0.975),
 # Make vertical y dataframe
 positions_y <- positions_x %>%
   select(-x_to_merge, -x_to_merge_end) %>%
-  pivot_longer(cols = c(x, xend), names_to = "position_type", values_to = "x") %>%
+  pivot_longer(cols = c(x, xend), names_to = "position_type", values_to = "x")
+
+positions_y <- positions_y %>%
   mutate(yend = lab_start[round(positions_y$x)])
 
 # Do pairwise compairsons
@@ -142,9 +145,10 @@ p <- ggplot(entropy_df, aes(x = hub_type, y = dep)) +
     inherit.aes = FALSE) +
   geom_text( # adds text labels
     data = pairwise_2,
-    aes(x = (x + xend)/2 + c(0, -0.1, 0, 0, 0, 0), y = y + adjust + 0.05, label = p.value)
-  ) +
+    aes(x = (x + xend)/2 + c(0, -0.2, 0, 0, 0, 0), y = y + adjust + 0.075, label = p.value),
+    size = 10/.pt) +
   geom_violin(data = entropy_df, aes(fill = hub_type), show.legend = FALSE) +
+  stat_summary(fun = "median", geom = "crossbar", color = "black", size = 0.25) +
   labs(
     y = "Departure entropy",
     x = "Hub type"
@@ -153,7 +157,14 @@ p <- ggplot(entropy_df, aes(x = hub_type, y = dep)) +
                                 'Small' = '#00a9b7',
                                 'Medium' = '#f8971f',
                                 'Large' = '#bf5700')) +
-  theme_minimal()
+  theme_minimal(base_size = 10)
+
+# Save image
+# ggsave("figures/09-SMC_entropy_dp.png",
+#        plot = p,
+#        units = 'in',
+#        width = 4,
+#        height = 3)
 
 # Write file
-write.csv(entropy_df, "data/09-SMC-entropy.csv", row.names = F)
+# write.csv(entropy_df, "data/09-SMC-entropy.csv", row.names = F)
