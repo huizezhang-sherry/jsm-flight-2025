@@ -3,6 +3,8 @@ library(tidyverse)
 library(purrr)
 library(ggrepel)
 library(ggplot2)
+library(arrow)
+source('scripts/00-SH-shared-functions.R')
 
 # Read in the below DF for plotting (this comes from Sherry's script 11 - ran on 7/30/25)
 entropy_df <- read.csv('data/11-SH-full-analysis-entropy-df.csv') %>%
@@ -77,7 +79,7 @@ p <- ggplot(entropy_df, aes(x = hub_type, y = arr)) +
     aes(x = x, xend = x, y = y, yend = yend),
     inherit.aes = FALSE) +
   geom_text( # adds text labels
-    data = pairwise_2,
+    data = pairwise_1,
     aes(x = (x + xend)/2 + c(0, -0.2, 0, 0, 0, 0), y = y + adjust + 0.05, label = p.value),
     size = 20/.pt) +
   geom_violin(data = entropy_df, aes(fill = hub_type), show.legend = FALSE, color = 'black') +
@@ -216,7 +218,7 @@ p2 <- flight_df |>
   scale_fill_manual(name = legend_name, values = color_list) +
   scale_color_manual(name = legend_name, values = color_list) +
   theme(legend.position = "bottom", text = element_text(colour = "black", size = 20)) +
-  xlab("Time (15 minute bins)") +
+  xlab("Binned time (30 minute intervals)") +
   scale_y_continuous(labels = NULL) +
   ylab("Yearly flight count (arb. units)")
 
@@ -250,7 +252,7 @@ p_smooth <- dt |>
   theme_minimal() +
   scale_y_continuous(labels = NULL) +
   theme(legend.position = "bottom", text = element_text(colour = "black", size = 20)) +
-  xlab("Time (15 minute bins)") +
+  xlab("Binned time (30 minute intervals)") +
   ylab("Spline fit (arb. units)")
 
 # Save image
