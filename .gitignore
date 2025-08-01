@@ -55,3 +55,5 @@ Year=2023
 /data/05-SMC-plot_df
 /renv
 renv.lock
+AA_flights.csv
+UA_flights.csv
