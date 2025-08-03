@@ -9,7 +9,7 @@ entropy_df <- readRDS("./data-raw/entropy_df_11-SH") # made in 11-SH script
 
 # FIRST PLOT
 p1 <- entropy_df |>
-  ggplot(aes(x = arr, y = dep, color = hub_type, shape = hub_type)) +
+  ggplot(aes(x = arr, y = dep, color = hub_type)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey50") +
   geom_point(size = 4) +
   facet_wrap(vars(airline), ncol = 4) +
@@ -18,21 +18,15 @@ p1 <- entropy_df |>
                                 'Small' = '#00a9b7',
                                 'Medium' = '#f8971f',
                                 'Large' = '#bf5700')) +
-  scale_shape_manual(values = c("Nonhub" = 15,
-                                "Small" = 16,
-                                "Medium" = 17,
-                                "Large" = 18)) +
   theme_bw(base_size = 32) +
   theme(aspect.ratio = 1, legend.position = "left",
         text = element_text(colour = "black", size = 32)) +
   xlab("Arrival entropy") +
-  ylab("Departure entropy") +
-  guides(shape = 'none',
-         color = guide_legend(override.aes = list(shape = c(18, 17, 16, 15))))
+  ylab("Departure entropy")
 ggsave(p1,
        filename = here::here("figures/12-SMC-four-airlines.png"),
        units = 'in',
-       width = 18,
+       width =  18,
        height = 5.5,
        bg = "white")
 
