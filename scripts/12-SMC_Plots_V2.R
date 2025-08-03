@@ -42,27 +42,27 @@ entropy_two <- entropy_df |> # american color
 smallest_three <- entropy_df |> # faa color
   filter(airline == "American") |> mutate(a= sum(arr + dep)) |> arrange(a) |> head(3)
 
-point_size <- 5
+point_size <- 9
 faa_color <- "#008000"
 american_color <- "#0078D2"
 
 p2 <- entropy_df |>
   filter(airline == "American") |>
   ggplot(aes(x = arr, y = dep, shape = hub_type)) +
-  geom_point(color = "grey80", size = point_size) +
+  geom_point(color = "grey80", size = 5) +
   geom_point(data = entropy_two, color = american_color, size = point_size) +
   geom_point(data = smallest_three, color = faa_color, size = point_size) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey50") +
   ggrepel::geom_text_repel(
     data = entropy_two ,
-    aes(label = airport),  color = american_color, size = 15,
+    aes(label = airport),  color = american_color, size = 10,
     direction = "y", nudge_x = 2.5 - entropy_two$arr, hjust = 0,
-    segment.curvature = -1e-20, segment.size = 2, segment.linetype = "dotted") +
+    segment.curvature = -1e-20, segment.size = 1, segment.linetype = "dotted") +
   ggrepel::geom_text_repel(
     data = smallest_three ,
-    aes(label = airport),  color = faa_color, size = 15, angle = 90,
-    direction = "x", nudge_y = smallest_three$dep -2, hjust = 0,
-    segment.curvature = -1e-20, segment.size = 2, segment.linetype = "dashed") +
+    aes(label = airport),  color = faa_color, size = 10, angle = 90,
+    direction = "x", nudge_y = -2 , hjust = 0,
+    segment.curvature = -1e-20, segment.size = 1, segment.linetype = "dashed") +
   scale_shape_manual(values = c("Nonhub" = 15,
                                 "Small" = 16,
                                 "Medium" = 17,
@@ -138,30 +138,39 @@ ggsave(p3,
 ord_entropy_df <- readRDS("./data-raw/ord_entropy_df-12-SH") %>%
   mutate(airline = factor(airline, levels = c("AA", "UA"), labels = c("American", "United")))
 
-cols <- brewer.pal(10, 'Paired')
-colU <- cols[6]
-colA <- cols[10]
-col_list <- c("American" = colA, "United" = colU)
+# cols <- brewer.pal(10, 'Paired')
+# colU <- cols[6]
+# colA <- cols[10]
+col_list <- c("American" = "#C30019", "United" = "#1414D4")
 
 events_df <- tibble(year = 2001, reason = "9/11",
                     airline = "American") |>
   bind_rows(
-    tibble(year = 2014, reason = "American-US \n Airway merger", airline = "American")) |>
+    tibble(year = 2014, reason = "US Airway merger", airline = "American")) |>
   bind_rows(
     tibble(year = 2021, reason = "COVID", airline = "United")) |>
   bind_rows(
-    tibble(year = 2003, reason = "Chapter 11 \n bankruptcy", airline = "United")) |>
+    tibble(year = 2003, reason = "United bankruptcy", airline = "United")) |>
   left_join(ord_entropy_df |> select(airline, airport, year, dep))
 
 p4 <- ord_entropy_df |>
   filter(!(airline == "United" & year == 2001)) |>
-  ggplot(aes(x = year, y = dep, group = airline, color = airline)) +
-  geom_point(size = 8, aes(shape = airline)) +
-  geom_line(size = 5) +
-  geom_point(data = tibble(year = 2001, dep = 1.09, airline = "United"), shape = 17, stroke = 1, size = 10, color = 'grey60') +
+  ggplot(aes(x = year, y = dep, group = airline, color = airline), alpha = 0.6) +
+  geom_line(size = 3, alpha = 0.6) +
+  geom_point(size = 5, aes(shape = airline)) +
+  geom_point(data = events_df, size = 10, aes(shape = airline), alpha = 0.6) +
+  geom_point(data = tibble(year = 2001, dep = 1.09, airline = "United"),
+             shape = 17, stroke = 1, size = 13, color = 'grey60') +
   ggrepel::geom_label_repel(
-    data = events_df, aes(label = reason), color = "black", size = 32/.pt,
-    nudge_x = 3, nudge_y = 0.1, segment.curvature = -1e-20,
+    data = events_df |> filter(year != 2014), aes(label = reason), color = "black", size = 32/.pt,
+    nudge_x = 2, nudge_y = 0.3, segment.curvature = -1e-20,
+    arrow = arrow(length = unit(0.05, "npc")),
+    segment.linetype = "solid",
+    segment.size = 1.5,
+    min.segment.length = 0) +
+  ggrepel::geom_label_repel(
+    data = events_df |> filter(year == 2014), aes(label = reason), color = "black", size = 32/.pt,
+    nudge_x = 5, nudge_y = 0, segment.curvature = -1e-20,
     arrow = arrow(length = unit(0.05, "npc")),
     segment.linetype = "solid",
     segment.size = 1.5,
@@ -182,6 +191,6 @@ ggsave(p4,
        filename = here::here("figures/12-SMC-ord-dep-entropy.png"),
        units = 'in',
        height = 4, width = 25,
-       bg = "white")
+        bg = "white")
 
 
