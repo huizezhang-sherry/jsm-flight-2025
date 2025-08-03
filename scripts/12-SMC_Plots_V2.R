@@ -19,7 +19,7 @@ p1 <- entropy_df |>
                                 'Medium' = '#f8971f',
                                 'Large' = '#bf5700')) +
   theme_bw(base_size = 32) +
-  theme(aspect.ratio = 1, legend.position = "left",
+  theme(aspect.ratio = 1, legend.position = "bottom",
         text = element_text(colour = "black", size = 32)) +
   xlab("Arrival entropy") +
   ylab("Departure entropy")
@@ -42,7 +42,7 @@ american_color <- "#0078D2"
 
 p2 <- entropy_df |>
   filter(airline == "American") |>
-  ggplot(aes(x = arr, y = dep, shape = hub_type)) +
+  ggplot(aes(x = arr, y = dep)) +
   geom_point(color = "grey80", size = 5) +
   geom_point(data = entropy_two, color = american_color, size = point_size) +
   geom_point(data = smallest_three, color = faa_color, size = point_size) +
@@ -57,10 +57,6 @@ p2 <- entropy_df |>
     aes(label = airport),  color = faa_color, size = 10, angle = 90,
     direction = "x", nudge_y = -2 , hjust = 0,
     segment.curvature = -1e-20, segment.size = 1, segment.linetype = "dashed") +
-  scale_shape_manual(values = c("Nonhub" = 15,
-                                "Small" = 16,
-                                "Medium" = 17,
-                                "Large" = 18)) +
   scale_x_continuous(breaks = seq(0.5, 1.75, by = 0.5)) +
   scale_y_continuous(breaks = seq(0.5, 1.75, by = 0.5)) +
   coord_cartesian(xlim = c(0.5, 1.75), ylim = c(0.5, 1.75)) +
@@ -130,7 +126,10 @@ ggsave(p3,
 
 # Last plot
 ord_entropy_df <- readRDS("./data-raw/ord_entropy_df-12-SH") %>%
-  mutate(airline = factor(airline, levels = c("AA", "UA"), labels = c("American", "United")))
+  mutate(airline = factor(airline, levels = c("AA", "UA"), labels = c("American", "United"))) %>%
+  mutate(group = ifelse(airline == "American", 1, ifelse(
+    airline == "United" & year < 2001, 2, 3
+  )))
 
 # cols <- brewer.pal(10, 'Paired')
 # colU <- cols[6]
@@ -145,16 +144,17 @@ events_df <- tibble(year = 2001, reason = "9/11",
     tibble(year = 2021, reason = "COVID", airline = "United")) |>
   bind_rows(
     tibble(year = 2003, reason = "United \n bankruptcy", airline = "United")) |>
-  left_join(ord_entropy_df |> select(airline, airport, year, dep))
+  left_join(ord_entropy_df |> select(airline, airport, year, dep)) %>% filter(year != 2001) %>%
+  filter(!year %in% c(2001, 2021))
 
 p4 <- ord_entropy_df |>
   filter(!(airline == "United" & year == 2001)) |>
   ggplot(aes(x = year, y = dep, group = airline, color = airline), alpha = 0.6) +
-  geom_line(size = 3, alpha = 0.6) +
+  geom_line(aes(group = group), size = 3, alpha = 0.6) +
   geom_point(size = 5, aes(shape = airline)) +
   geom_point(data = events_df, size = 10, aes(shape = airline), alpha = 0.6) +
-  geom_point(data = tibble(year = 2001, dep = 1.09, airline = "United"),
-             shape = 17, stroke = 1, size = 13, color = '#36495A') +
+  # geom_point(data = tibble(year = 2001, dep = 1.09, airline = "United"),
+  #            shape = 2, stroke = 2, size = 13, color = '#36495A') +
   ggrepel::geom_label_repel(
     data = events_df |> filter(year != 2014), aes(label = reason), color = "black", size = 32/.pt,
     nudge_x = 2, nudge_y = 0.3, segment.curvature = -1e-20,
@@ -186,5 +186,11 @@ ggsave(p4,
        units = 'in',
        height = 4, width = 25,
         bg = "white")
+
+ggsave(p4,
+       filename = here::here("figures/12-SMC-ord-dep-entropy-2.png"),
+       units = 'in',
+       height = 8, width = 20,
+       bg = "white")
 
 
