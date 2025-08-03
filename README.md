@@ -1,4 +1,4 @@
-# jsm-flight-2025
+# Data Challenge Expo JSM 2025
 
 *Please check the `issues` tab on GitHub for your TODO list*
 
