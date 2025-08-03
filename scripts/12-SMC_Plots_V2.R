@@ -140,11 +140,11 @@ col_list <- c("American" = "#C30019", "United" = "#1414D4")
 events_df <- tibble(year = 2001, reason = "9/11",
                     airline = "American") |>
   bind_rows(
-    tibble(year = 2014, reason = "US Airway merger", airline = "American")) |>
+    tibble(year = 2014, reason = "US Airway \n merger", airline = "American")) |>
   bind_rows(
     tibble(year = 2021, reason = "COVID", airline = "United")) |>
   bind_rows(
-    tibble(year = 2003, reason = "United bankruptcy", airline = "United")) |>
+    tibble(year = 2003, reason = "United \n bankruptcy", airline = "United")) |>
   left_join(ord_entropy_df |> select(airline, airport, year, dep))
 
 p4 <- ord_entropy_df |>
@@ -154,7 +154,7 @@ p4 <- ord_entropy_df |>
   geom_point(size = 5, aes(shape = airline)) +
   geom_point(data = events_df, size = 10, aes(shape = airline), alpha = 0.6) +
   geom_point(data = tibble(year = 2001, dep = 1.09, airline = "United"),
-             shape = 17, stroke = 1, size = 13, color = 'grey60') +
+             shape = 17, stroke = 1, size = 13, color = '#36495A') +
   ggrepel::geom_label_repel(
     data = events_df |> filter(year != 2014), aes(label = reason), color = "black", size = 32/.pt,
     nudge_x = 2, nudge_y = 0.3, segment.curvature = -1e-20,
