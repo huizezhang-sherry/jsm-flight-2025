@@ -88,28 +88,50 @@ splines_df <- binned_data |>
 #   theme(legend.position = 'bottom')
 
 
-calc_fft <- function(dt){
+calc_fft <- function(dt, block_size = 15){
+  # Get signal and number of observations
   signal <- dt$fitted
   n <- length(signal)
 
-  fft_result <- fft(signal) # actually doing fft
+  # Perform fft
+  fft_result <- fft(signal) # actually doing fft, observations are in intevals of block_size
   modulus <- Mod(fft_result)[1:(n*0.5)] # amplitudes
-  freqs <- (1:(n*0.5)) / n # frequencies
-  periods_in_minutes <- 1 / freqs
+  freqs <- (1:(n*0.5)) / n # units 1/time
+  periods_in_minutes <- (1 / freqs) * (1/block_size) # block_size in minutes
 
-  tibble(
+  # Format result
+  result <- tibble(
     period_mins = periods_in_minutes,
     amplitude = modulus
   ) |>
     dplyr::filter(is.finite(period_mins), period_mins <= 1440) # up to 24 hours
+
+  # Get inverse (for visualization)
+  inverse <- Re(fft(fft_result, inverse = TRUE)) / n  # normalize
+  reconstruct <- tibble(
+    block = dt$block,
+    reconstructed = inverse
+  )
+  return(list('calc' = result, 'reconstructed' = reconstruct))
 }
 
 fft_all <- splines_df |>
-  nest(data = -c(airline, airport, type)) |>
+  nest(data = everything(), .by = c(airline, airport, type)) |>
   rowwise() |>
-  mutate(fft_res = list(calc_fft(data))) |>
+  mutate(fft_res = list(calc_fft(data)[['calc']])) |>
   select(-data) |>
   unnest(fft_res)
+
+saveRDS(fft_all, 'data-raw/fft_all_11-SH')
+
+fft_all_reconstruct <- splines_df |>
+  nest(data = everything(), .by = c(airline, airport, type)) |>
+  rowwise() |>
+  mutate(fft_res = list(calc_fft(data)[['reconstructed']])) |>
+  select(-data) |>
+  unnest(fft_res)
+
+saveRDS(fft_all_reconstruct, 'data-raw/fft_reconstructed_11-SH')
 
 # Get entropy!
 entropy_df <- fft_all |>
