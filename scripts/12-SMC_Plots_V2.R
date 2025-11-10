@@ -134,7 +134,7 @@ ord_entropy_df <- readRDS("./data-raw/ord_entropy_df-12-SH") %>%
 # cols <- brewer.pal(10, 'Paired')
 # colU <- cols[6]
 # colA <- cols[10]
-col_list <- c("American" = "#C30019", "United" = "#1414D4")
+col_list <- c("American" = "#36495A", "United" = "#1414D4")
 
 events_df <- tibble(year = 2001, reason = "9/11",
                     airline = "American") |>

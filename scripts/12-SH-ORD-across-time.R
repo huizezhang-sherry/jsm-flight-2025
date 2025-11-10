@@ -29,7 +29,7 @@ flight_2001 <- read_parquet("Year=2001/data_0.parquet")
 # write_csv(ord_hubs_spokes, file = here::here("data/ord_hubs_spokes.csv"))
 
 ord_hubs_spokes <- read_csv(here::here("data/ord_hubs_spokes.csv"))
-binned_data <- ord_hubs_spokes |>
+ord_binned_data <- ord_hubs_spokes |>
   complete(airline, airport, type, block, year, fill = list(n = 0)) |>
   mutate(airline_airport = paste(airline, airport, sep = "/ "))
 
@@ -81,16 +81,19 @@ ord_splines_df <- ord_binned_data |>
 #   theme(legend.position = 'bottom')
 
 
-calc_fft <- function(dt){
+calc_fft <- function(dt, block_size = 15){
+  # Get signal and number of observations
   signal <- dt$fitted
   n <- length(signal)
 
-  fft_result <- fft(signal) # actually doing fft
-  modulus <- Mod(fft_result)[1:(n*0.5)] # amplitudes
-  freqs <- (1:(n*0.5)) / n # frequencies
-  periods_in_minutes <- 1 / freqs
+  # Perform fft
+  fft_result <- fft(signal) # actually doing fft, observations are in intevals of block_size
+  modulus <- Mod(fft_result)[1:(n/2)]/(n/2)# amplitudes
+  freqs <- (0:(n/2-1))/block_size # units 1/time (minutes)
+  periods_in_minutes <- (1 / freqs) # block_size in minutes
 
-  tibble(
+  # Format result
+  result <- tibble(
     period_mins = periods_in_minutes,
     amplitude = modulus
   ) |>
@@ -107,9 +110,11 @@ ord_fft_all <- ord_splines_df |>
 # Get entropy!
 ord_entropy_df <- ord_fft_all |>
   group_by(airline, airport, type, year) %>%
-  summarise(prob = amplitude^2 / sum(amplitude^2)) %>%
+  mutate(prob = amplitude^2 / sum(amplitude^2)) %>%
   summarise(entropy = sum(-prob*log(prob), na.rm = T)) |>
   pivot_wider(names_from = type, values_from = entropy)
+
+saveRDS(ord_entropy_df, "./data-raw/ord_entropy_df-12-SH")
 
 events_df <- tibble(year = 2001, reason = "post 9/11",
        airline = "AA") |>

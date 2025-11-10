@@ -57,6 +57,8 @@ splines_df <- binned_data |>
   mutate(block = as_datetime(x)) |>
   select(-x)
 
+saveRDS(splines_df, 'data-raw/splines_df_11-SH')
+
 # diagnostic on spline fit
 # dt <-  splines_df |>
 #   filter(airline == "UA") |>
@@ -95,9 +97,9 @@ calc_fft <- function(dt, block_size = 15){
 
   # Perform fft
   fft_result <- fft(signal) # actually doing fft, observations are in intevals of block_size
-  modulus <- Mod(fft_result)[1:(n*0.5)] # amplitudes
-  freqs <- (1:(n*0.5)) / n # units 1/time
-  periods_in_minutes <- (1 / freqs) * (1/block_size) # block_size in minutes
+  modulus <- Mod(fft_result)[1:(n/2)]/(n/2)# amplitudes
+  freqs <- (0:(n/2-1))/block_size # units 1/time (minutes)
+  periods_in_minutes <- (1 / freqs) # block_size in minutes
 
   # Format result
   result <- tibble(
@@ -107,7 +109,7 @@ calc_fft <- function(dt, block_size = 15){
     dplyr::filter(is.finite(period_mins), period_mins <= 1440) # up to 24 hours
 
   # Get inverse (for visualization)
-  inverse <- Re(fft(fft_result, inverse = TRUE)) / n  # normalize
+  inverse <- Re(fft(fft_result, inverse = TRUE)) / (n/2)  # normalize
   reconstruct <- tibble(
     block = dt$block,
     reconstructed = inverse
@@ -136,7 +138,7 @@ saveRDS(fft_all_reconstruct, 'data-raw/fft_reconstructed_11-SH')
 # Get entropy!
 entropy_df <- fft_all |>
   group_by(airline, airport, type) %>%
-  summarise(prob = amplitude^2 / sum(amplitude^2)) %>%
+  mutate(prob = amplitude^2 / sum(amplitude^2)) %>%
   summarise(entropy = sum(-prob*log(prob), na.rm = T)) |>
   pivot_wider(names_from = type, values_from = entropy) |>
   left_join(hub_df, by = c("airport" = "dest")) |>
@@ -146,6 +148,7 @@ entropy_df <- fft_all |>
                           levels = c("AA", "DL", "UA", "WN"),
                           labels = c("American", "Delta", "United", "Southwest")))
 
+saveRDS(entropy_df, './data-raw/entropy_df_11-SH')
 
 ################################################################
 ################################################################
@@ -193,7 +196,7 @@ p3
 ################################################################
 ################################################################
 smallest_three <- entropy_df |> filter(airline == "American") |> mutate(a= sum(arr + dep)) |> arrange(a) |> head(3)
-airports <- c(smallest_ten$airport, "DFW", "CLT", "ORD")
+airports <- c(smallest_three$airport, "DFW", "CLT", "ORD")
 entropy_two <- entropy_df |> filter(airline == "American") |> filter(airport %in% c("ORD", "DFW", "CLT"))
 
 color_list <- c("Arrival" = "#BFB5AF", "Departure" = "#ECE2D0")
@@ -261,6 +264,8 @@ dt <-  splines_df |>
   mutate(fitted = fitted / sum(fitted)) |>
   mutate(fitted = ifelse(type == "Departure", fitted, -fitted)) |>
   filter(airport %in% c("ORD", "DFW", "CLT"))
+
+saveRDS(dt, 'data-raw/dt_11-SH')
 
 p2 <- count_df |>
   ggplot(aes(x = block, y = n, color = type, fill = type)) +
