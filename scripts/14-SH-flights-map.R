@@ -87,7 +87,7 @@ source('scripts/00-SH-shared-functions.R')
 two_df <- flight_df_raw |>
   filter(Reporting_Airline == "AA", Year == 2017,
          (Origin %in% c("AUS", "DFW") | Dest %in% c("AUS", "DFW"))) |>
-  summarize_count(airports = c("AUS", "DFW"), block_size = 10) |> 
+  summarize_count(airports = c("AUS", "DFW"), block_size = 30) |> 
   mutate(type = factor(type, levels = c('dep', 'arr'), labels = c("dep" = 'Departure', "arr" = 'Arrival'))) |> 
    mutate(airline_airport = factor(airline_airport,
                                   labels = c("American / Austin-Bergstrom International Airport (AUS)",
@@ -103,3 +103,74 @@ two_df |> plot_dep_arv_pattern() +
   theme(legend.position = "bottom", text = element_text(colour = "black", size = 10)) 
 ggsave(filename = "figures/14-AUS-DFW.png", height = 8, width = 20, unit = "cm", bg = "white")
      
+aa_hubs <- c("DFW", "CLT", "ORD", "PHL", "PHX", "LAX", "DCA", "JFK", "RDU","MCI", "ALB", "OMA")
+airport_df <- tibble(
+  aa_hubs=aa_hubs, 
+  airline_airport = c(
+    "American / Dallas/Fort Worth International Airport (DFW)",
+    "American / Charlotte Douglas International Airport (CLT)",
+    "American / Chicago O'Hare International Airport (ORD)",
+    "American / Philadelphia International Airport (PHL)",
+    "American / Phoenix Sky Harbor International Airport (PHX)",
+    "American / Los Angeles International Airport (LAX)",
+    "American / Ronald Reagan Washington National Airport (DCA)",
+    "American / John F. Kennedy International Airport (JFK)",
+    "American / Raleigh-Durham International Airport (RDU)",
+    "American / Kansas City International Airport (MCI)",
+    "American / Albany International Airport (ALB)",
+    "American / Omaha Eppley Airfield (OMA)"
+  ))
+
+aa_df <- flight_df_raw |>
+  filter(Reporting_Airline == "AA", Year == 2017, (Origin %in% aa_hubs | Dest %in% aa_hubs)) |>
+  summarize_count(airports = aa_hubs, block_size = 10) |> 
+  mutate(type = factor(type, levels = c('dep', 'arr'), labels = c("dep" = 'Departure', "arr" = 'Arrival'))) |> 
+  select(-airline_airport) |> 
+  left_join(airport_df, by = c("airport" = "aa_hubs")) |> 
+  mutate(airline_airport = factor(airline_airport, levels = airport_df$airline_airport))
+
+color_list <- c("Arrival" = "#00a9b7", "Departure" = "#353F47")
+aa_df |> plot_dep_arv_pattern() + 
+   scale_x_datetime(date_labels =  "%H:%M", date_breaks = "4 hour") + 
+  facet_wrap(vars(airline_airport), scales = "free_y", ncol = 2, dir = "v") + 
+  scale_fill_manual(name = "Flight type", values = color_list) +
+  scale_color_manual(name = "Flight type", values = color_list) + 
+  xlab("Binned time (10 minute intervals)") +
+  theme(legend.position = "bottom", text = element_text(colour = "black", size = 10)) 
+ggsave(filename = "figures/14-aa-all.png", height = 18, width = 20, unit = "cm", bg = "white")
+     
+######################################################################
+airport_df <- tibble(
+  aa_hubs=aa_hubs, 
+  airline_airport = c(
+    "Delta Air Lines / Dallas/Fort Worth International Airport (DFW)",
+    "Delta Air Lines / Charlotte Douglas International Airport (CLT)",
+    "Delta Air Lines / Chicago O'Hare International Airport (ORD)",
+    "Delta Air Lines / Philadelphia International Airport (PHL)",
+    "Delta Air Lines / Phoenix Sky Harbor International Airport (PHX)",
+    "Delta Air Lines / Los Angeles International Airport (LAX)",
+    "Delta Air Lines / Ronald Reagan Washington National Airport (DCA)",
+    "Delta Air Lines / John F. Kennedy International Airport (JFK)",
+    "Delta Air Lines / Raleigh-Durham International Airport (RDU)",
+    "Delta Air Lines / Kansas City International Airport (MCI)",
+    "Delta Air Lines / Albany International Airport (ALB)",
+    "Delta Air Lines / Omaha Eppley Airfield (OMA)"
+  ))
+dl_df <- flight_df_raw |>
+  filter(Reporting_Airline == "DL", Year == 2017, (Origin %in% aa_hubs | Dest %in% aa_hubs)) |>
+  summarize_count(airports = aa_hubs, block_size = 10) |> 
+  mutate(type = factor(type, levels = c('dep', 'arr'), labels = c("dep" = 'Departure', "arr" = 'Arrival'))) |> 
+  select(-airline_airport) |> 
+  left_join(airport_df, by = c("airport" = "aa_hubs")) |> 
+  mutate(airline_airport = factor(airline_airport, levels = airport_df$airline_airport))
+
+color_list <- c("Arrival" = "#00a9b7", "Departure" = "#353F47")
+dl_df |> plot_dep_arv_pattern() + 
+   scale_x_datetime(date_labels =  "%H:%M", date_breaks = "4 hour") + 
+  facet_wrap(vars(airline_airport), scales = "free_y", ncol = 2, dir=  "v") + 
+  scale_fill_manual(name = "Flight type", values = color_list) +
+  scale_color_manual(name = "Flight type", values = color_list) + 
+  xlab("Binned time (10 minute intervals)") +
+  theme(legend.position = "bottom", text = element_text(colour = "black", size = 10)) 
+ggsave(filename = "figures/14-dl-aa-hubs.png", height = 18, width = 20, unit = "cm", bg = "white")
+      
