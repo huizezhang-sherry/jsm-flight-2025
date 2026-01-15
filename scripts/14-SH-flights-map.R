@@ -102,23 +102,25 @@ two_df |> plot_dep_arv_pattern() +
   xlab("Binned time (10 minute intervals)") +
   theme(legend.position = "bottom", text = element_text(colour = "black", size = 10)) 
 ggsave(filename = "figures/14-AUS-DFW.png", height = 8, width = 20, unit = "cm", bg = "white")
-     
-aa_hubs <- c("DFW", "CLT", "ORD", "PHL", "PHX", "LAX", "DCA", "JFK", "RDU","MCI", "ALB", "OMA")
+
+###############################################################
+aa_hubs <- c("DFW", "CLT", "ORD", "PHX", "LGA", "LAX", "AUS", "ATL","MCI", "PDX", "ALB", "OAK")
 airport_df <- tibble(
   aa_hubs=aa_hubs, 
   airline_airport = c(
     "American / Dallas/Fort Worth International Airport (DFW)",
     "American / Charlotte Douglas International Airport (CLT)",
     "American / Chicago O'Hare International Airport (ORD)",
-    "American / Philadelphia International Airport (PHL)",
     "American / Phoenix Sky Harbor International Airport (PHX)",
+    "American / LaGuardia Airport (LGA)",
     "American / Los Angeles International Airport (LAX)",
-    "American / Ronald Reagan Washington National Airport (DCA)",
-    "American / John F. Kennedy International Airport (JFK)",
-    "American / Raleigh-Durham International Airport (RDU)",
+    "American / Austin-Bergstrom International Airport (AUS)",
+    "American / Hartsfield-Jackson Atlanta International Airport (ATL)",
     "American / Kansas City International Airport (MCI)",
+    "American / Portland International Airport (PDX)",
     "American / Albany International Airport (ALB)",
-    "American / Omaha Eppley Airfield (OMA)"
+    "American / Oakland International Airport (OAK)"
+
   ))
 
 aa_df <- flight_df_raw |>
@@ -140,7 +142,7 @@ aa_df |> plot_dep_arv_pattern() +
 ggsave(filename = "figures/14-aa-all.png", height = 18, width = 20, unit = "cm", bg = "white")
      
 ######################################################################
-airport_df <- tibble(
+  aaairport_df <- tibble(
   aa_hubs=aa_hubs, 
   airline_airport = c(
     "Delta Air Lines / Dallas/Fort Worth International Airport (DFW)",
