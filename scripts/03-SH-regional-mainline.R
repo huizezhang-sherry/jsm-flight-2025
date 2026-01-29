@@ -17,9 +17,12 @@ regionals <- c("9E", "YX", "OH", "OO")
 mainlines <- c("AA", "DL", "UA", "WN")
 flight_mr <- flight_df |>
   filter(Reporting_Airline %in% c(regionals, mainlines)) |>
-  distinct(Reporting_Airline, Origin, Dest, Distance, DistanceGroup) |>
+  distinct(Reporting_Airline, Origin, Dest, Distance, tail_number) |>
+  left_join(tail_number) |>
   mutate(regional = as.factor(ifelse(Reporting_Airline %in% regionals, 1, 0))) |>
-  group_by(Origin, Dest) |>
+  rowwise() |>
+  mutate(concat = sort(c(Origin, Dest)) |> paste0(collapse = "-")) |>
+  group_by(concat, reporting_airline) |>
   filter(row_number() == 1) |>
   ungroup()
 
@@ -33,7 +36,7 @@ joined_df1 <- flight_mr |>
   mutate(pair = paste0(Origin, Dest) ) |>
   left_join(airport_pairs |> mutate(pair = paste0(airport_1, airport_2)), by = "pair" )
 
-joined_df2 <- flight_mr |> filter(is.na(year)) |>
+joined_df2 <- flight_mr |> #filter(is.na(year)) |>
   mutate(pair = paste0(Origin, Dest) ) |>
   select(Reporting_Airline: pair) |>
   left_join(airport_pairs |> mutate(pair = paste0(airport_2, airport_1)), by = "pair" )
@@ -44,8 +47,8 @@ mainlines_vs_regionals <- joined_df1 |> filter(!is.na(year)) |>
 
 ########################################################################################
 route_count_df <- flight_df |>
-  select(Reporting_Airline, Origin, Dest) |>
-  group_by(Reporting_Airline) |>
+  filter(Reporting_Airline %in% c(regionals, mainlines)) |>
+  select(Origin, Dest) |>
   count(Origin, Dest, sort = TRUE) |>
   rename(from = Origin, to = Dest)
 
@@ -73,9 +76,16 @@ mainlines_vs_regionals2 <- mainlines_vs_regionals |>
   left_join(airport_centrality_df |> rename(degree_1 = degree), by = c("airport_1" = "airport")) |>
   left_join(airport_centrality_df |> rename(degree_2 = degree), by = c("airport_2" = "airport"))
 
+mainlines_vs_regionals2 |>
+  ggplot(aes(x = degree_1, y = degree_2, color = regional)) +
+  geom_point() +
+  theme(aspect.ratio = 1)
+
+mainlines_vs_regionals2 |> count(regional)
+
 mainlines_vs_regionals_balance <- mainlines_vs_regionals2 |>
   filter(regional == 0) |>
-  head(526) |>
+  head(226) |>
   bind_rows(mainlines_vs_regionals2 |> filter(regional == 1))
 
 res_glm <- logistic_reg() %>%
@@ -85,7 +95,7 @@ res_glm <- logistic_reg() %>%
 aug_glm <- augment(res_glm, new_data = mainlines_vs_regionals_balance)
 aug_glm |> conf_mat(truth = regional, estimate = .pred_class)
 
-res_rf <- rand_forest(mtry = 10, trees = 2000) %>%
+res_rf <- rand_forest(trees = 2000) %>%
   set_engine("ranger", importance = "impurity") %>%
   set_mode("classification") %>%
   fit(regional ~ nsmiles + passengers + degree_1 + degree_2, data = mainlines_vs_regionals_balance)
