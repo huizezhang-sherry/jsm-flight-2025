@@ -19,7 +19,7 @@ all_routes <- flight_df |>
   arrange(Reporting_Airline, Tail_Number, time)
 
 missing_airports <- all_routes |>
-  left_join(airports, by = c("airport" = "ident")) 
+  left_join(airports, by = c("airport" = "ident"))
 
 missing_airports <- missing_airports |>
   filter(is.na(x)) |>
@@ -45,7 +45,7 @@ all_routes2_count_df_big4 <- all_routes2 |>
   filter(Reporting_Airline %in% c("UA", "WN", "AA", "DL")) |>
   group_by(Reporting_Airline) |>
   mutate(`Route Count` =  50 * n/sum(n),
-         Reporting_Airline = factor(Reporting_Airline, 
+         Reporting_Airline = factor(Reporting_Airline,
                                     levels = c("AA", "DL","UA", "WN"),
                                     labels = c("American Airlines",
                                                "Delta Airlines",

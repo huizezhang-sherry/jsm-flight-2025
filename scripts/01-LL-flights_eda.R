@@ -14,6 +14,9 @@ out <- curl::multi_download(paste0(base_url, files), files, resume = TRUE)
 # read in parquet file
 df <- read_parquet("Year=2024/data_0.parquet")
 
+
+
+
 # make some simple exploratory plots
 f886 <- subset(df, Flight_Number_Reporting_Airline == 886)
 f886 <- subset(df, Flight_Number_Reporting_Airline == 886 & Reporting_Airline == "DL" & OriginAirportID == 12478)

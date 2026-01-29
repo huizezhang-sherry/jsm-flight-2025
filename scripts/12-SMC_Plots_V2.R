@@ -182,9 +182,9 @@ p4 <- ord_entropy_df |>
 
 
 ggsave(p4,
-       filename = here::here("figures/12-SMC-ord-dep-entropy.png"),
+       filename = here::here("figures/12-SMC-ord-dep-entropy-2.png"),
        units = 'in',
-       height = 4, width = 25,
+       height = 5, width = 25,
         bg = "white")
 
 ggsave(p4,
