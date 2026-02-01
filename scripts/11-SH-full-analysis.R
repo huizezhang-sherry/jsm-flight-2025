@@ -8,7 +8,7 @@ hub_df <- read_csv(here::here("data/hub_status_2017.csv")) |> select(-...1)
 airport_vec <- hub_df |> pull(dest)
 
 intro_df <- flight_df |>
-  summarize_count(block_size = 15, airports = c("DFW", "BNA")) |>
+  summarize_count(block_size = 10, airports = c("DFW", "BNA")) |>
   filter(airline == "AA") |>
   mutate(airline_airport = fct_recode(airline_airport,
                                       "American/ Nashville Int. Airport" = "AA/ BNA",
@@ -34,7 +34,7 @@ ggsave(here::here("figures/11-SH-intro.png"), height = 1.5, width = 8, bg = "whi
 ##################################################################
 flight_hubs_spokes <- flight_df |>
   filter(Reporting_Airline %in% c("DL", "AA", "WN", "UA")) |>
-  summarize_count(block_size = 15, airports = airport_vec)
+  summarize_count(block_size = 10, airports = airport_vec)
 
 binned_data <- flight_hubs_spokes |>
   complete(airline, airport, type, block, fill = list(n = 0)) |>
@@ -90,7 +90,7 @@ saveRDS(splines_df, 'data-raw/splines_df_11-SH')
 #   theme(legend.position = 'bottom')
 
 
-calc_fft <- function(dt, block_size = 15){
+calc_fft <- function(dt, block_size = 10){
   # Get signal and number of observations
   signal <- dt$fitted
   n <- length(signal)
@@ -228,7 +228,7 @@ p1 <- entropy_df |>
 count_df <-  flight_df |>
   filter(Reporting_Airline %in% c("AA")) |>
   filter((Origin %in% airports| Dest %in% airports)) |>
-  summarize_count(block_size = 15, airports = airports) |>
+  summarize_count(block_size = 10, airports = airports) |>
   mutate(airline_airport = factor(airline_airport, levels = c("AA/ LGA", "AA/ BOS", "AA/ DCA",
                                                               "AA/ CLT", "AA/ DFW", "AA/ ORD")),
          airline_airport = fct_recode(airline_airport,

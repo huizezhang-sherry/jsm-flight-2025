@@ -391,9 +391,16 @@ ggsave("figures/13-smooth.png",
 ### SIXTH PLOT: ENTROPY ###
 entropy_df <- readRDS('./data-raw/entropy_df_11-SH') # fft
 
+airports <- read_csv(here::here("data/airports_in_cont_us.csv"))
+
 aa_hubs <- c("CLT","ORD","DFW","LAX","MIA","JFK","LGA","PHL","PHX","DCA") # Source https://www.aa.com/i18n/customer-service/about-us/american-airlines-group.jsp and wikipedia
 dl_hubs <- c("ATL","BOS","DTW","LAX","MSP","JFK","LGA","SLC","SEA") # Source https://news.delta.com/corporate-stats-and-facts
 ua_hubs <- c("ORD", "DEN", "GUM", "IAH", "LAX", "EWR", "SFO", "IAD") # Source https://www.united.com/en/us/fly/travel/airport/maps.html
+
+airline_names <- list('American' = 'American Airlines',
+                      'Delta' = 'Delta Air Lines',
+                      'United' = 'United Airlines',
+                      'Southwest' = 'Southwest Airlines')
 
 hubs <- tibble(airline = "American", airport = aa_hubs) |>
   bind_rows(tibble(airline = "Delta", airport = dl_hubs)) |>
@@ -403,12 +410,15 @@ hubs <- tibble(airline = "American", airport = aa_hubs) |>
 p6 <- entropy_df |>
   left_join(hubs, by = c('airline', 'airport')) |>
   replace_na(list(hub = 'No')) |>
-  mutate(hub_type = factor(hub_type, levels = c("Nonhub", "Small", "Medium", "Large"))) |>
+  mutate(hub = factor(hub, levels = c("Yes", "No")),
+         hub_type = factor(hub_type, levels = c("Nonhub", "Small", "Medium", "Large")),
+         airline = airline_names[[airline]]) |>
+  filter(airport %in% airports$airport,
+         !(airport %in% c("SJU", "STT"))) |>
   ggplot(aes(x = arr, y = dep, color = hub_type, shape = hub)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey50") +
-  geom_point(size = 1, alpha = 0.8) +
+  geom_point(size = 2) +
   facet_wrap(vars(airline)) +
-
   scale_color_manual(name = 'FAA Classification',
                      values = c('Nonhub' = '#005f86',
                                'Small' = '#00a9b7',
@@ -417,11 +427,12 @@ p6 <- entropy_df |>
   scale_shape_manual(name = "Airline Hub", values = c('Yes' = 17, 'No' = 19)) +
   theme_minimal(base_size = 10) +
   theme(aspect.ratio = 1,
-        legend.position = "bottom",
+        legend.position = "right",
         text = element_text(colour = "black", size = 10),
         panel.grid.minor = element_blank(),
         legend.box = 'vertical') +
-  guides(color = guide_legend(nrow = 2)) +
+  guides(color = guide_legend(nrow = 2),
+         shape = guide_legend(ncol = 2)) +
   xlab("Arrival entropy") +
   ylab("Departure entropy")
 
@@ -429,8 +440,9 @@ p6 <- entropy_df |>
 ggsave("figures/13-entropy.png",
        plot = p6,
        units = 'cm',
-       width = 8.5,
-       height = 12)
+       width = 18,
+       height = 12,
+       bg = 'white')
 
 ### SEVENTH PLOT: ZOOMED IN HUBS ###
 
@@ -544,5 +556,5 @@ p8 <- ord_entropy_df |>
 ggsave(p8,
        filename = "figures/13-ord-dep-entropy.png",
        units = 'cm',
-       width = 8.5,
-       height = 6)
+       width = 19,
+       height = 10)

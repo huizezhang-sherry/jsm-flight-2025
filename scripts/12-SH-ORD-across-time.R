@@ -1,36 +1,47 @@
 library(tidyverse)
 library(patchwork)
 source(here::here("scripts/00-SH-shared-functions.R"))
-flight_2001 <- read_parquet("Year=2001/data_0.parquet")
 
+# flight_df <- read_parquet("Year=2017/data_0.parquet")
+#
+# hub_df <- read_csv(here::here("data/hub_status_2017.csv")) |> select(-...1)
+# airport_vec <- hub_df |> pull(dest)
+#
+# intro_df <- flight_df |>
+#   summarize_count(block_size = 10, airports = c("DFW", "BNA"))
+#
+# flight_2001 <- read_parquet("Year=2001/data_0.parquet")
+#
 # flight_aa <- read_csv(here::here("data/AA_flights.csv"))
 # flight_ua <- read_csv(here::here("data/UA_flights.csv"))
 #
 # flight_ord <- bind_rows(flight_aa, flight_ua) |>
 #   filter(Origin == "ORD" | Dest == "ORD") |>
-#   filter(!is.na(DepTime), !is.na(ArrTime))
-
-# ord_hubs_spokes <- flight_ord |>
-#   mutate(year = year(FlightDate),
-#          DepTime = as_datetime(paste0("2017-01-01", "-", DepTime, "-00")),
-#          ArrTime = as_datetime(paste0("2017-01-01", "-", ArrTime, "-00"))) |>
-#   select(Reporting_Airline, FlightDate, DepTime, ArrTime, Origin, Dest, year) |>
-#   rename(dep_time = DepTime, arr_time = ArrTime,
-#          dep_airport = Origin, arr_airport = Dest,
-#          airline = Reporting_Airline) |>
-#   pivot_longer(cols = -c(FlightDate, airline, year),
-#                names_to = c("type", ".value"), names_sep = "_") |>
-#   dplyr::filter(airport %in% "ORD") |>
-#   arrange(time) |>
-#   mutate(block = assign_time_blocks(time, 15)) |>
-#   count(airline, airport, type, block, year) |>
-#   mutate(airline_airport = paste(airline, airport, sep = "/ ")) |>
+#   filter(!is.na(DepTime), !is.na(ArrTime)) |>
 #   mutate(n = ifelse(type == "dep", n, -n))
+#
 # write_csv(ord_hubs_spokes, file = here::here("data/ord_hubs_spokes.csv"))
+#
+# ord_hubs_spokes <- read_csv(here::here("data/ord_hubs_spokes.csv"))
+# ord_binned_data <- ord_hubs_spokes |>
+#   complete(airline, airport, type, block, year, fill = list(n = 0)) |>
+#   mutate(airline_airport = paste(airline, airport, sep = "/ "))
 
+# Years <- 1995:2024
+#
+# ord_hubs_spokes <- lapply(Years, function(Year){
+#   parquet_name <- paste0("Year=", Year, "/data_0.parquet")
+#   parquet <- read_parquet(parquet_name) |>
+#     filter(Reporting_Airline %in% c("AA", "UA")) |>
+#     summarize_count(block_size = 10, airports = c("ORD")) |>
+#     mutate(year = Year)
+# }) |> bind_rows()
+#
+# write_csv(ord_hubs_spokes, file = here::here("data/ord_hubs_spokes.csv"))
 ord_hubs_spokes <- read_csv(here::here("data/ord_hubs_spokes.csv"))
+
 ord_binned_data <- ord_hubs_spokes |>
-  complete(airline, airport, type, block, year, fill = list(n = 0)) |>
+  complete(airline, airport, type, block, fill = list(n = 0)) |>
   mutate(airline_airport = paste(airline, airport, sep = "/ "))
 
 # Fit a smooth spline for each airport and type
@@ -43,7 +54,7 @@ ord_splines_df <- ord_binned_data |>
   mutate(n = abs(n)) |>
   nest(data = -c(airline, airport, type, year)) |>
   rowwise() |>
-  #filter(nrow(data) > 48) |>
+  filter(dplyr::n_distinct(data$block) >= 4) |>
   mutate(smooth_res = list(calc_smooth(data, spar = 0.05))) |>
   unnest(smooth_res) |>
   select(-data) |>
@@ -81,7 +92,7 @@ ord_splines_df <- ord_binned_data |>
 #   theme(legend.position = 'bottom')
 
 
-calc_fft <- function(dt, block_size = 15){
+calc_fft <- function(dt, block_size = 10){
   # Get signal and number of observations
   signal <- dt$fitted
   n <- length(signal)
@@ -109,8 +120,8 @@ ord_fft_all <- ord_splines_df |>
 
 # Get entropy!
 ord_entropy_df <- ord_fft_all |>
-  group_by(airline, airport, type, year) %>%
-  mutate(prob = amplitude^2 / sum(amplitude^2)) %>%
+  group_by(airline, airport, type, year) |>
+  mutate(prob = amplitude^2 / sum(amplitude^2)) |>
   summarise(entropy = sum(-prob*log(prob), na.rm = T)) |>
   pivot_wider(names_from = type, values_from = entropy)
 
