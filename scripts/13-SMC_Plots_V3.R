@@ -504,7 +504,7 @@ ord_entropy_df <- readRDS("./data-raw/ord_entropy_df-12-SH") |>
     airline == "United" & year < 2001, 2, 3
   )))
 
-col_list <- c("American" = "#36495A", "United" = "#1414D4")
+col_list <- c("American" = "black", "United" = "#00a9b7")
 
 events_df <- tibble(year = 2001, reason = "9/11",
                     airline = "American") |>
@@ -519,14 +519,13 @@ events_df <- tibble(year = 2001, reason = "9/11",
   filter(!year %in% c(2001, 2021))
 
 p8 <- ord_entropy_df |>
-  filter(!(airline == "United" & year == 2001)) |>
   ggplot(aes(x = year, y = dep, group = airline, color = airline), alpha = 0.6) +
   geom_line(aes(group = group), linewidth = 1, alpha = 0.6) +
   geom_point(size = 1, aes(shape = airline)) +
   geom_point(data = events_df, size = 2, aes(shape = airline), alpha = 0.6) +
   ggrepel::geom_label_repel(
     data = events_df |> filter(year != 2013), aes(label = reason), color = "black",
-    nudge_x = 7, nudge_y = 0.3, segment.curvature = 0.2,
+    nudge_x = 5, nudge_y = 0.3, segment.curvature = 0.2,
     arrow = arrow(length = unit(0.05, "npc")),
     segment.linetype = "solid",
     size = 3,
@@ -535,7 +534,7 @@ p8 <- ord_entropy_df |>
   ggrepel::geom_label_repel(
     data = events_df |> filter(year == 2013),
     aes(label = reason), color = "black",
-    nudge_x = 7, nudge_y = 0, segment.curvature = 0.2,
+    nudge_x = 5, nudge_y = 0.3, segment.curvature = 0.2,
     arrow = arrow(length = unit(0.05, "npc")),
     segment.linetype = "solid",
     size = 3,
@@ -544,17 +543,17 @@ p8 <- ord_entropy_df |>
   scale_color_manual(name = 'Airline', values = col_list) +
   theme_minimal(base_size = 10) +
   theme(panel.grid.minor = element_blank(),
-        legend.position = 'bottom', axis.text.y = element_blank(),
-        text = element_text(colour = "black", size = 10),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1)) +
+        legend.position = 'bottom',
+        text = element_text(colour = "black", size = 10)) +
   guides(shape = 'none',
          color = guide_legend(override.aes = list(shape = c(16, 17)))) +
   scale_x_continuous(breaks = seq(1995, 2025, 5)) +
-  ylab("Departure \n Entropy") +
-  xlab("Year")
+  scale_y_continuous() +
+  labs(y = "Departure Entropy", x = "Year")
 
 ggsave(p8,
        filename = "figures/13-ord-dep-entropy.png",
        units = 'cm',
        width = 19,
-       height = 10)
+       height = 8,
+       bg = 'white')
