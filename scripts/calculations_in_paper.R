@@ -183,6 +183,28 @@ entropy_df <- fft_all |>
 
 write_csv(entropy_df, 'data/entropy_df.csv')
 
+########################################################
+### Getting ORD flight counts over time for Figure 8 ###
+########################################################
+
+Years <- 1995:2024
+st_fips <- sprintf("%02d", c(1, 3:14, 16:56)) # no AK, HI
+
+ord_flight_counts <- lapply(Years, function(Year){
+  parquet_name <- paste0("Year=", Year, "/data_0.parquet")
+  parquet <- read_parquet(parquet_name) |>
+    filter(Reporting_Airline %in% c("AA", "UA"),
+           OriginStateFips %in% st_fips,
+           DestStateFips %in% st_fips) |>
+    filter(!is.na(DepTime), !is.na(ArrTime)) |>
+    filter(Origin == "ORD") |> # only flights departing from ORD
+    group_by(Reporting_Airline) |>
+    summarise(flight_count = n(), .groups = 'drop') |>
+    mutate(Year = Year)
+}) |> bind_rows()
+
+write_csv(ord_flight_counts, 'data/ord_flight_counts.csv')
+
 ######################################################
 ### Calculating ORD entropy over time for Figure 8 ###
 ######################################################

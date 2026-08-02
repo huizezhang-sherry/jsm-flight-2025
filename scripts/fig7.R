@@ -11,10 +11,12 @@ ua_hubs <- c("ORD", "DEN", "IAH", "LAX", "EWR", "SFO", "IAD")
 # and https://s202.q4cdn.com/986123435/files/doc_news/2018/04/1/CRR-Report-2017.pdf
 # and https://www.forbes.com/sites/tedreed/2023/02/17/american-airlines-says-laguardia-airport-is-its-newest-hub/
 
-entropy_df <- read_csv(here::here("data/entropy_df.csv"),
-                       show_col_types = F)
 airports <- read_csv(here::here("data/airports_in_cont_us.csv"),
                      show_col_types = F)
+
+entropy_df <- read_csv(here::here("data/entropy_df.csv"),
+                       show_col_types = F) |>
+  filter(airport %in% airports$airport)
 
 airline_names <- list('American' = 'American Airlines',
                       'Delta' = 'Delta Air Lines',
@@ -26,41 +28,95 @@ hubs <- tibble(airline = "American", airport = aa_hubs) |>
   bind_rows(tibble(airline = "United", airport = ua_hubs)) |>
   mutate(hub = 'Yes')
 
-fig7 <- entropy_df |>
+plotting_df <- entropy_df |>
   left_join(hubs, by = c('airline', 'airport')) |>
   replace_na(list(hub = 'No')) |>
   rowwise() |>
   mutate(hub = factor(hub, levels = c("Yes", "No")),
          hub_type = factor(hub_type, levels = c("Nonhub", "Small", "Medium", "Large")),
          airline = airline_names[[airline]]) |>
-  ungroup() |>
-  filter(airport %in% airports$airport,
-         !(airport %in% c("SJU", "STT"))) |>
+  ungroup()
+
+aa_fig3 <- c("DFW", "CLT", "ORD", "PHL", "LGA", "LAX", "DCA", "AUS", "ATL", "PDX", "EGE", "ALB", "OAK", "AMA")
+aa_other <- c("SFO", "JFK", "BOS")
+
+highlight_df <- plotting_df |>
+  filter(airport %in% aa_fig3 | airport %in% aa_other) |>
+  mutate(group = ifelse(airport %in% aa_fig3, "highlighted", "others"))
+
+fig7 <- plotting_df |>
   ggplot(aes(x = Arrival, y = Departure, color = hub_type, shape = hub)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey50") +
   geom_point(size = 2, alpha = 0.7) +
   facet_wrap(vars(airline)) +
-  scale_shape_manual(name = "Airline Hub", values = c('Yes' = 17, 'No' = 19)) +
+  scale_shape_manual(name = "Airline Hub",
+                     values = c('Yes' = 17, 'No' = 19)) +
   scale_color_manual(name = 'FAA Classification',
                      values = c('Nonhub' = '#005f86',
                                 'Small' = '#00a9b7',
                                 'Medium' = '#f8971f',
                                 'Large' = '#bf5700')) +
   theme_minimal(base_size = 10) +
-  theme(aspect.ratio = 1,
-        legend.position = "right",
+  theme(legend.position = "right",
         text = element_text(colour = "black", size = 10),
         panel.grid.minor = element_blank(),
         legend.box = 'vertical') +
   guides(color = guide_legend(nrow = 2),
          shape = guide_legend(ncol = 2)) +
   xlab("Arrival entropy") +
-  ylab("Departure entropy")
+  ylab("Departure entropy") +
+  coord_cartesian(xlim = c(1, 4), ylim = c(1, 4), ratio = 1)
 
 # Save image
 ggsave("figures/fig7.png",
        plot = fig7,
        units = 'cm',
        width = 18,
-       height = 12,
+       height = 14,
+       bg = 'white')
+
+fig7_labeled <- plotting_df |>
+  ggplot(aes(x = Arrival, y = Departure, color = hub_type, shape = hub)) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey50") +
+  geom_point(size = 2, alpha = 0.7) +
+  geom_text_repel(data = highlight_df,
+                  aes(label = airport,
+                      colour = after_scale("black")),
+                  size = 3,
+                  max.overlaps = Inf,
+                  force = 50,
+                  force_pull = 0.001,
+                  max.time = 10,
+                  max.iter = 100000,
+                  box.padding = 0.5,
+                  point.padding = 0.2,
+                  min.segment.length = 0,
+                  colour = "black",
+                  segment.size = 0.2,
+                  seed = 2025) +
+  facet_wrap(vars(airline)) +
+  scale_shape_manual(name = "Airline Hub",
+                     values = c('Yes' = 17, 'No' = 19)) +
+  scale_color_manual(name = 'FAA Classification',
+                     values = c('Nonhub' = '#005f86',
+                                'Small' = '#00a9b7',
+                                'Medium' = '#f8971f',
+                                'Large' = '#bf5700')) +
+  theme_minimal(base_size = 10) +
+  theme(legend.position = "right",
+        text = element_text(colour = "black", size = 10),
+        panel.grid.minor = element_blank(),
+        legend.box = 'vertical') +
+  guides(color = guide_legend(nrow = 2),
+         shape = guide_legend(ncol = 2)) +
+  xlab("Arrival entropy") +
+  ylab("Departure entropy") +
+  coord_cartesian(xlim = c(1, 4), ylim = c(1, 4), ratio = 1)
+
+# Save image
+ggsave("figures/fig7_labeled.png",
+       plot = fig7_labeled,
+       units = 'cm',
+       width = 18,
+       height = 14,
        bg = 'white')

@@ -1,26 +1,23 @@
 library(tidyverse)
 library(ggrepel)
 
-entropy_df <- read_csv(here::here('data/entropy_df.csv'),
-                       show_col_types = F)
-
 airports <- read_csv(here::here("data/airports_in_cont_us.csv"),
                      show_col_types = F)
 
-aa_fig3 <- c("DFW", "CLT", "ORD", "PHL", "LGA", "LAX", "DCA", "AUS", "ATL", "PDX", "EGE", "ALB", "OAK", "AMA")
-
-entropy_american <- entropy_df |>
+entropy_american <- read_csv(here::here('data/entropy_df.csv'),
+                             show_col_types = F) |>
   filter(airline == "American") |>
-  filter(airport %in% airports$airport) |> # remove noncontinential
-  ungroup() |>
-  filter(!airport %in% c("SJU", "STT")) # remove territories
+  filter(airport %in% airports$airport)
 
-highlight_df <- entropy_american |> filter(Arrival < 2.07, Departure < 3.5) |>
-  mutate(group = ifelse(airport %in% aa_fig3, "highlighted", "others")) |>
-  bind_rows(entropy_american |> filter(airport %in% aa_fig3) |> filter(Arrival > 2.1) |>
-              mutate(group = "highlighted"))
+aa_fig3 <- c("DFW", "CLT", "ORD", "PHL", "LGA", "LAX", "DCA", "AUS", "ATL", "PDX", "EGE", "ALB", "OAK", "AMA")
+aa_other <- c("SFO", "JFK", "BOS")
+
+highlight_df <- entropy_american |>
+  filter(airport %in% aa_fig3 | airport %in% aa_other) |>
+  mutate(group = ifelse(airport %in% aa_fig3, "highlighted", "others"))
 
 color_df <- c(highlighted = "black", others = "grey60")
+
 fig6 <- entropy_american |>
   ggplot(aes(x = Arrival, y = Departure)) +
   geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "grey50") +
