@@ -25,7 +25,7 @@ fig6 <- entropy_american |>
   geom_point(data = highlight_df, aes(color = group), size = 2) +
   ggrepel::geom_text_repel(
     data = highlight_df, aes(label = airport, color = group), size = 3,
-    max.overlaps = 6) +
+    max.overlaps = Inf) +
   scale_x_continuous(breaks = seq(1.5, 4, by = 0.5)) +
   scale_y_continuous(breaks = seq(1.5, 4, by = 0.5)) +
   coord_cartesian(xlim = c(1.5, 4), ylim = c(1.5, 4)) +

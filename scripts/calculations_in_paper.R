@@ -15,7 +15,6 @@ total <- 0
 for (file in files){
   n <- arrow::open_dataset(file)
   total <- total + n$num_rows
-  print(paste0('Rows in file ', file, ': ', n$num_rows))
 }
 
 # total is 217,389,694, rounds to 217 million over 38 years
@@ -247,7 +246,7 @@ ord_hubs_spokes <- lapply(Years, function(Year){
 }) |> bind_rows()
 
 write_csv(ord_hubs_spokes, file = here::here("data/ord_hubs_spokes.csv"))
-ord_hubs_spokes <- read_csv('data/ord_hubs_spokes.csv')
+ord_hubs_spokes <- read_csv('data/ord_hubs_spokes.csv', show_col_types = F)
 
 # Part 2: Bin data, create smoothing spline
 
