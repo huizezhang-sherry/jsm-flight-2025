@@ -68,8 +68,8 @@ aa_df <- flight_df_raw |>
 
 
 color_list <- c("Arrival" = "#00a9b7", "Departure" = "#353F47")
-xlabels <- paste0(seq(0, 24, 4), ':00')
-xbreaks <- ymd_hm(paste0('2017-01-01 ', xlabels))
+xlabels <- paste0(c(seq(0, 20, 4), 0), ':00')
+xbreaks <- c(ymd_hm(paste0('2017-01-01 ', xlabels[1:6])), ymd_hm(paste0('2017-01-02 ', xlabels[7])))
 
 p1 <- aa_df |>
   ggplot(aes(x = block, y = n, color = type, fill = type)) +

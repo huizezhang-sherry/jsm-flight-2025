@@ -50,8 +50,8 @@ two_df <- flight_df_raw |>
 
 # Plot aesthetics
 color_list <- c("Arrival" = "#00a9b7", "Departure" = "#353F47")
-xlabels <- paste0(seq(0, 24, 4), ':00')
-xbreaks <- ymd_hm(paste0('2017-01-01 ', xlabels))
+xlabels <- paste0(c(seq(0, 20, 4), 0), ':00')
+xbreaks <- c(ymd_hm(paste0('2017-01-01 ', xlabels[1:6])), ymd_hm(paste0('2017-01-02 ', xlabels[7])))
 ausbreaks <- seq(-200, 600, 200)
 auslabels <- abs(ausbreaks)
 austitle <- 'American / Austin-Bergstrom International Airport (AUS)'
@@ -74,6 +74,9 @@ two_df |>
         plot.title = element_text(hjust = 0.5, size = 8)) + 
   ylab("Annual Flight Count") + 
   xlab("Binned time (10 minute intervals)")
+
+ggsave(filename = "figures/fig2.png",
+       height = 10, width = 18, unit = "cm", bg = "white")
 
 # # Function to color y axis labels in new plots
 # color_y_axis_labels <- function(p,
